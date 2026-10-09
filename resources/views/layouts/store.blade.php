@@ -56,12 +56,7 @@
         </main>
 
         <footer class="border-t border-stone-100 px-4 py-4 text-center text-xs text-stone-500">
-            {{ $siteName ?? 'Bazar Amal' }} · Website Bazar Amal Terintegrasi v2.0
-            @auth
-                · <a href="{{ route('admin.dashboard') }}" class="text-brand-600 font-semibold">Admin</a>
-            @else
-                · <a href="{{ route('login') }}" class="text-brand-600 font-semibold">Login Panitia</a>
-            @endauth
+            {{ $siteName ?? 'Bazar Amal' }} · Toko amal untuk siswa dan masyarakat
         </footer>
     </div>
     @livewireScripts

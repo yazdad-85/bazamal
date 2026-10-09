@@ -21,7 +21,13 @@ class BazarFlowTest extends TestCase
     {
         $this->seed();
 
-        $this->get('/')->assertOk()->assertSee('Menu Bazar Besar')->assertHeader('X-Frame-Options', 'DENY');
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Menu Bazar Besar')
+            ->assertDontSee('2 Tombol Menu Utama')
+            ->assertDontSee('Login Panitia')
+            ->assertDontSee('>Admin<', false)
+            ->assertHeader('X-Frame-Options', 'DENY');
         $this->get('/bazar?bazar=kecil')->assertOk()->assertSee('Bazar Kecil');
     }
 

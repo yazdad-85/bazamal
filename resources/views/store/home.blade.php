@@ -46,7 +46,6 @@
     </section>
 
     <section class="px-4 -mt-5 relative z-10">
-        <p class="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-2 px-1">2 Tombol Menu Utama</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <a href="{{ route('products.index', ['bazar' => 'besar']) }}"
                class="rounded-2xl bg-accent-700 hover:bg-accent-600 text-white p-5 shadow-lg shadow-orange-900/10 transition flex items-center gap-4">

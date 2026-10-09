@@ -56,7 +56,7 @@
         </main>
 
         <footer class="border-t border-stone-100 px-4 py-4 text-center text-xs text-stone-500">
-            {{ $siteName ?? 'Bazar Amal' }} · Toko amal untuk siswa dan masyarakat
+            {{ $siteName ?? 'Bazar Amal' }} Copyright {{ now()->year }}
         </footer>
     </div>
     @livewireScripts

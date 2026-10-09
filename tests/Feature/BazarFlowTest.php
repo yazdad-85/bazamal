@@ -25,6 +25,8 @@ class BazarFlowTest extends TestCase
             ->assertOk()
             ->assertSee('Menu Bazar Besar')
             ->assertDontSee('2 Tombol Menu Utama')
+            ->assertDontSee('Toko amal untuk siswa')
+            ->assertSee('Copyright '.now()->year)
             ->assertDontSee('Login Panitia')
             ->assertDontSee('>Admin<', false)
             ->assertHeader('X-Frame-Options', 'DENY');

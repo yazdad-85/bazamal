@@ -66,3 +66,4 @@ Akun admin terakhir tidak bisa dihapus. Ganti password lewat profil setelah masu
 - Metode ambil: ambil di lokasi bazar, atau kirim ke alamat (hanya Bazar Besar, tanpa ongkir, diantar tim panitia)
 - Bayar: QRIS (gambar statis, dicek panitia) / transfer + bukti / tunai
 - Admin: CRUD produk, filter pesanan, ubah status, export CSV
+- Pengguna: panitia inti mengatur semua lembaga; koordinator hanya pesanan lembaganya

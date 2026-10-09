@@ -56,6 +56,17 @@ class Order extends Model
         return $query->where('institution', $filter);
     }
 
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->isInti()) {
+            return $query;
+        }
+
+        return $query
+            ->where('buyer_type', 'siswa')
+            ->where('institution', $user->institution);
+    }
+
     public function getFormattedSubtotalAttribute(): string
     {
         return 'Rp '.number_format($this->subtotal, 0, ',', '.');

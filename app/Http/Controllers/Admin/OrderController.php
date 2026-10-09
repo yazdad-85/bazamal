@@ -19,6 +19,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
+        $this->authorizeOrder($order);
         $order->load('items.product');
 
         return view('admin.orders.show', compact('order'));
@@ -26,6 +27,8 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, Order $order): RedirectResponse
     {
+        $this->authorizeOrder($order);
+
         $data = $request->validate([
             'status' => ['required', 'in:'.implode(',', Order::STATUSES)],
         ]);
@@ -37,6 +40,7 @@ class OrderController extends Controller
 
     public function proof(Order $order): BinaryFileResponse
     {
+        $this->authorizeOrder($order);
         $relative = $order->payment_proof;
         abort_unless(is_string($relative) && $relative !== '' && ! str_contains($relative, '..'), 404);
 
@@ -56,5 +60,10 @@ class OrderController extends Controller
             'Cache-Control' => 'private, no-store',
             'X-Content-Type-Options' => 'nosniff',
         ]);
+    }
+
+    private function authorizeOrder(Order $order): void
+    {
+        abort_unless(request()->user()?->canSeeOrder($order), 403);
     }
 }

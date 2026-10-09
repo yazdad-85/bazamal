@@ -13,9 +13,11 @@ class ReportController extends Controller
 {
     public function index(Request $request): View
     {
-        $institution = $request->query('lembaga', 'semua');
+        $locked = $request->user()->isKoordinator();
+        $institution = $locked ? $request->user()->institution : $request->query('lembaga', 'semua');
 
         $orders = Order::query()
+            ->visibleTo($request->user())
             ->institutionFilter($institution)
             ->with('items')
             ->latest()
@@ -26,15 +28,18 @@ class ReportController extends Controller
             'orders' => $orders,
             'institution' => $institution,
             'institutions' => Institutions::options(),
+            'lockedInstitution' => $locked,
         ]);
     }
 
     public function export(Request $request): StreamedResponse
     {
-        $institution = $request->query('lembaga', 'semua');
+        $locked = $request->user()->isKoordinator();
+        $institution = $locked ? $request->user()->institution : $request->query('lembaga', 'semua');
         $filename = 'laporan-bazar-'.now()->format('Ymd-His').'.csv';
 
         $orders = Order::query()
+            ->visibleTo($request->user())
             ->institutionFilter($institution)
             ->with('items')
             ->latest()

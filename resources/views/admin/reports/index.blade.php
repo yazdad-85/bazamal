@@ -6,12 +6,16 @@
 @section('content')
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div class="flex flex-wrap gap-2">
+            @if ($lockedInstitution)
+                <span class="px-3 py-1.5 rounded-full text-xs font-bold border bg-brand-700 text-white border-brand-700">{{ $institution }}</span>
+            @else
             @foreach (array_merge(['semua' => 'Semua'], array_combine($institutions, $institutions), ['Umum' => 'Umum']) as $value => $label)
                 <a href="{{ route('admin.reports.index', ['lembaga' => $value]) }}"
                    @class(['px-3 py-1.5 rounded-full text-xs font-bold border', $institution === $value ? 'bg-brand-700 text-white border-brand-700' : 'bg-white text-stone-600 border-stone-200'])>
                     {{ $label }}
                 </a>
             @endforeach
+            @endif
         </div>
         <a href="{{ route('admin.reports.export', ['lembaga' => $institution]) }}"
            class="inline-flex justify-center rounded-xl bg-accent-600 text-white font-bold px-4 py-2.5 text-sm">

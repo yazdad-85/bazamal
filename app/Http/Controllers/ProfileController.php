@@ -47,13 +47,13 @@ class ProfileController extends Controller
             'password' => ['required', 'current_password'],
         ]);
 
-        if (User::query()->count() <= 1) {
+        $user = $request->user();
+
+        if ($user->isInti() && User::query()->where('role', User::ROLE_INTI)->count() <= 1) {
             return back()->withErrors([
-                'password' => 'Akun admin terakhir tidak dapat dihapus.',
+                'password' => 'Akun panitia inti terakhir tidak dapat dihapus.',
             ], 'userDeletion');
         }
-
-        $user = $request->user();
 
         Auth::logout();
 

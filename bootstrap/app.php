@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'inti' => \App\Http\Middleware\EnsureIntiAdmin::class,
+        ]);
+
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
         $proxies = env('TRUSTED_PROXIES');

@@ -13,9 +13,12 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $institution = $request->query('lembaga', 'semua');
+        $locked = $request->user()->isKoordinator();
+        $institution = $locked ? $request->user()->institution : $request->query('lembaga', 'semua');
 
-        $ordersQuery = Order::query()->institutionFilter($institution);
+        $ordersQuery = Order::query()
+            ->visibleTo($request->user())
+            ->institutionFilter($institution);
 
         $stats = [
             'total_besar' => Product::where('bazar_type', 'besar')->where('is_active', true)->count(),
@@ -36,6 +39,7 @@ class DashboardController extends Controller
             'recentOrders' => $recentOrders,
             'institution' => $institution,
             'institutions' => Institutions::options(),
+            'lockedInstitution' => $locked,
         ]);
     }
 }

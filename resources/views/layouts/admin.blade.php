@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=nunito:400,600,700,800&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>[x-cloak]{display:none !important}</style>
     @livewireStyles
 </head>
 <body class="font-sans antialiased bg-stone-100 text-stone-900">
@@ -27,11 +28,14 @@
                 @php
                     $links = [
                         ['route' => 'admin.dashboard', 'label' => 'Dashboard', 'match' => 'admin.dashboard'],
-                        ['route' => 'admin.products.index', 'label' => 'Produk', 'match' => 'admin.products.*'],
                         ['route' => 'admin.orders.index', 'label' => 'Pesanan', 'match' => 'admin.orders.*'],
                         ['route' => 'admin.reports.index', 'label' => 'Laporan', 'match' => 'admin.reports.*'],
-                        ['route' => 'admin.settings.edit', 'label' => 'Pengaturan', 'match' => 'admin.settings.*'],
                     ];
+                    if (auth()->user()?->isInti()) {
+                        $links[] = ['route' => 'admin.products.index', 'label' => 'Produk', 'match' => 'admin.products.*'];
+                        $links[] = ['route' => 'admin.users.index', 'label' => 'Pengguna', 'match' => 'admin.users.*'];
+                        $links[] = ['route' => 'admin.settings.edit', 'label' => 'Pengaturan', 'match' => 'admin.settings.*'];
+                    }
                 @endphp
                 @foreach ($links as $link)
                     <a href="{{ route($link['route']) }}"
@@ -50,12 +54,18 @@
         <div class="flex-1 min-w-0">
             <header class="bg-white border-b border-stone-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
                 <h1 class="font-display font-bold text-lg text-brand-800">@yield('heading', 'Dashboard')</h1>
-                <div class="text-sm text-stone-500">{{ auth()->user()->name }}</div>
+                <div class="text-right">
+                    <div class="text-sm font-semibold text-stone-700">{{ auth()->user()->name }}</div>
+                    <div class="text-xs text-stone-400">{{ auth()->user()->role_label }}</div>
+                </div>
             </header>
 
             <main class="p-4 sm:p-6">
                 @if (session('success'))
                     <div class="mb-4 rounded-xl bg-brand-50 text-brand-800 text-sm px-4 py-3 border border-brand-100">{{ session('success') }}</div>
+                @endif
+                @if (session('error'))
+                    <div class="mb-4 rounded-xl bg-red-50 text-red-700 text-sm px-4 py-3 border border-red-100">{{ session('error') }}</div>
                 @endif
                 @yield('content')
             </main>

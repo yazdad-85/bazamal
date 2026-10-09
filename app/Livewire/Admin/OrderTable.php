@@ -48,8 +48,19 @@ class OrderTable extends Component
 
     public function setInstitution(string $value): void
     {
+        if (auth()->user()?->isKoordinator()) {
+            return;
+        }
+
         $this->institution = $value;
         $this->resetPage();
+    }
+
+    public function mount(): void
+    {
+        if (auth()->user()?->isKoordinator()) {
+            $this->institution = (string) auth()->user()->institution;
+        }
     }
 
     public function boot(): void
@@ -65,13 +76,25 @@ class OrderTable extends Component
             return;
         }
 
-        Order::whereKey($orderId)->update(['status' => $status]);
+        $order = Order::query()->visibleTo(auth()->user())->whereKey($orderId)->first();
+
+        if (! $order) {
+            return;
+        }
+
+        $order->update(['status' => $status]);
     }
 
     public function render()
     {
+        $user = auth()->user();
+        if ($user->isKoordinator()) {
+            $this->institution = (string) $user->institution;
+        }
+
         $query = Order::query()
             ->with('items')
+            ->visibleTo($user)
             ->institutionFilter($this->institution)
             ->latest();
 
@@ -96,6 +119,7 @@ class OrderTable extends Component
             'orders' => $query->paginate(15),
             'institutions' => Institutions::options(),
             'statuses' => Order::STATUSES,
+            'lockedInstitution' => $user->isKoordinator(),
         ]);
     }
 }

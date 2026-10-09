@@ -1,11 +1,15 @@
 <div wire:poll.10s class="space-y-4">
     <div class="flex flex-wrap gap-2">
+        @if ($lockedInstitution)
+            <span class="px-3 py-1.5 rounded-full text-xs font-bold border bg-brand-700 text-white border-brand-700">{{ $institution }}</span>
+        @else
         @foreach (array_merge(['semua' => 'Semua'], array_combine($institutions, $institutions), ['Umum' => 'Umum']) as $value => $label)
             <button type="button" wire:click="setInstitution('{{ $value }}')"
                     @class(['px-3 py-1.5 rounded-full text-xs font-bold border transition', $institution === $value ? 'bg-brand-700 text-white border-brand-700' : 'bg-white text-stone-600 border-stone-200 hover:border-brand-400'])>
                 {{ $label }}
             </button>
         @endforeach
+        @endif
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">

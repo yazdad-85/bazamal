@@ -1,6 +1,37 @@
 @extends('layouts.store')
 
-@section('title', $product->name)
+@php
+    $productDescription = trim(preg_replace('/\s+/', ' ', strip_tags((string) $product->description)) ?? '');
+    if ($productDescription === '') {
+        $productDescription = $product->name.' di '.($siteName ?? 'Bazar Amal').'. Harga '.$product->formatted_price.'. '.$product->bazar_label.' untuk siswa dan masyarakat.';
+    }
+    $productSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Product',
+        'name' => $product->name,
+        'description' => $productDescription,
+        'image' => $product->image_url,
+        'url' => route('products.show', $product),
+        'offers' => [
+            '@type' => 'Offer',
+            'priceCurrency' => 'IDR',
+            'price' => (string) $product->price,
+            'availability' => $product->stock > 0
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            'url' => route('products.show', $product),
+        ],
+    ];
+@endphp
+@section('seo_title', $product->name.' — '.($siteName ?? 'Bazar Amal'))
+@section('meta_description', $productDescription)
+@section('canonical', route('products.show', $product))
+@section('og_type', 'product')
+@section('og_image', $product->image_url)
+
+@push('head')
+    <script type="application/ld+json">{!! json_encode($productSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
+@endpush
 
 @section('content')
     <div class="relative">

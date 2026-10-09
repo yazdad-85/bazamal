@@ -1,6 +1,15 @@
 @extends('layouts.store')
 
-@section('title', $bazarType === 'besar' ? 'Bazar Besar' : 'Bazar Kecil')
+@php
+    $catalogLabel = $bazarType === 'besar' ? 'Bazar Besar' : 'Bazar Kecil';
+    $catalogDescription = $bazarType === 'besar'
+        ? 'Katalog Bazar Besar di '.($siteName ?? 'Bazar Amal').'. Produk pilihan panitia untuk siswa dan masyarakat, diambil di lokasi atau diantar tanpa ongkir.'
+        : 'Katalog Bazar Kecil di '.($siteName ?? 'Bazar Amal').'. Jajanan dan merchandise bazar untuk siswa, diambil langsung di lokasi bazar.';
+@endphp
+@section('seo_title', $catalogLabel.' — '.($siteName ?? 'Bazar Amal'))
+@section('meta_description', $catalogDescription)
+@section('canonical', route('products.index', ['bazar' => $bazarType]))
+@section('robots', request()->filled('q') ? 'noindex, follow' : 'index, follow')
 
 @section('content')
     <div class="px-4 pt-5">

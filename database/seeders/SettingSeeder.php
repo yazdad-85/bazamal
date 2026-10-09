@@ -11,6 +11,7 @@ class SettingSeeder extends Seeder
     {
         $defaults = [
             'site_name' => 'Bazar Amal',
+            'meta_description' => 'Belanja di Bazar Amal, toko amal untuk siswa MTs, SMP, MA, SMA, SMK, dan masyarakat. Setiap pembelian mendukung kegiatan amal pendidikan.',
             'site_logo' => null,
             'bank_info' => config('bazar.bank_info'),
             'qris_image' => null,

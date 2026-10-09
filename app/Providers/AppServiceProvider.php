@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        View::composer(['layouts.store', 'layouts.admin', 'layouts.guest'], function ($view) {
+        View::composer(['layouts.store', 'layouts.admin', 'layouts.guest', 'store.*'], function ($view) {
             try {
                 if (! Schema::hasTable('settings')) {
                     $view->with([

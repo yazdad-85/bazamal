@@ -1,6 +1,7 @@
 @extends('layouts.store')
 
 @section('title', 'Pesanan Berhasil')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <div class="px-4 py-8 text-center max-w-md mx-auto">

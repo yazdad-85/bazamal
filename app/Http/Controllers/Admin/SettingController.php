@@ -29,6 +29,7 @@ class SettingController extends Controller
     {
         $data = $request->validate([
             'site_name' => ['required', 'string', 'max:120'],
+            'meta_description' => ['nullable', 'string', 'max:180'],
             'bank_info' => ['nullable', 'string', 'max:255'],
             'wa_bendahara' => ['required', 'string', 'max:30'],
             'wa_mts' => ['nullable', 'string', 'max:30'],
@@ -44,6 +45,7 @@ class SettingController extends Controller
 
         $pairs = [
             'site_name' => $data['site_name'],
+            'meta_description' => trim($data['meta_description'] ?? ''),
             'bank_info' => $data['bank_info'] ?? '',
             'wa_bendahara' => preg_replace('/\D+/', '', $data['wa_bendahara']),
             'wa_mts' => preg_replace('/\D+/', '', $data['wa_mts'] ?? ''),

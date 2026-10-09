@@ -19,6 +19,15 @@
             </div>
 
             <div>
+                <label class="block text-sm font-semibold mb-1">Deskripsi untuk Google</label>
+                <textarea name="meta_description" rows="3" maxlength="180"
+                          class="w-full rounded-xl border-stone-200 text-sm"
+                          placeholder="{{ \App\Models\Setting::metaDescription() }}">{{ old('meta_description', $settings['meta_description'] ?? '') }}</textarea>
+                <p class="text-xs text-stone-400 mt-1">Tampil di hasil pencarian. Ideal 140–160 karakter. Kosongkan untuk memakai kalimat bawaan.</p>
+                @error('meta_description') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
                 <label class="block text-sm font-semibold mb-1">Logo</label>
                 @if ($logoUrl)
                     <div class="flex items-center gap-4 mb-3">

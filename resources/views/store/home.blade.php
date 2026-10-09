@@ -1,6 +1,39 @@
 @extends('layouts.store')
 
-@section('title', 'Beranda')
+@section('seo_title', ($siteName ?? 'Bazar Amal').' — Toko Amal untuk Siswa dan Masyarakat')
+@section('canonical', route('home'))
+
+@push('head')
+    @php
+        $websiteSchema = [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'WebSite',
+                    'name' => $siteName ?? 'Bazar Amal',
+                    'url' => route('home'),
+                    'description' => \App\Models\Setting::metaDescription(),
+                    'inLanguage' => 'id-ID',
+                    'potentialAction' => [
+                        '@type' => 'SearchAction',
+                        'target' => [
+                            '@type' => 'EntryPoint',
+                            'urlTemplate' => route('products.index', ['bazar' => 'besar']).'&q={search_term_string}',
+                        ],
+                        'query-input' => 'required name=search_term_string',
+                    ],
+                ],
+                array_filter([
+                    '@type' => 'Organization',
+                    'name' => $siteName ?? 'Bazar Amal',
+                    'url' => route('home'),
+                    'logo' => $siteLogoUrl,
+                ]),
+            ],
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($websiteSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
+@endpush
 
 @section('content')
     <section class="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800 text-white px-5 py-8">

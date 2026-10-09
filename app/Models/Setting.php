@@ -51,6 +51,19 @@ class Setting extends Model
         return static::getValue('site_name', config('app.name', 'Bazar Amal')) ?: 'Bazar Amal';
     }
 
+    public static function metaDescription(): string
+    {
+        $custom = trim((string) static::getValue('meta_description', ''));
+
+        if ($custom !== '') {
+            return $custom;
+        }
+
+        $name = static::siteName();
+
+        return "Belanja di {$name}, toko amal untuk siswa MTs, SMP, MA, SMA, SMK, dan masyarakat. Setiap pembelian mendukung kegiatan amal pendidikan.";
+    }
+
     public static function siteLogoUrl(): ?string
     {
         $path = static::getValue('site_logo');

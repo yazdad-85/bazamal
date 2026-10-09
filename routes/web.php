@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\Store\CheckoutController;
+use App\Http\Controllers\Seo\SitemapController;
 use App\Http\Controllers\Store\HomeController;
 use App\Http\Controllers\Store\OrderTrackingController;
 use App\Http\Controllers\Store\ProductController;
@@ -29,6 +30,9 @@ Route::get('/favicon.ico', function () {
         'Cache-Control' => 'public, max-age=300',
     ]);
 })->name('favicon');
+
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/bazar', [ProductController::class, 'index'])->name('products.index');

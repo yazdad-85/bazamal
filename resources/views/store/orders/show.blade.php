@@ -1,6 +1,7 @@
 @extends('layouts.store')
 
 @section('title', 'Detail '.$order->order_code)
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <div class="px-4 py-5 space-y-5">

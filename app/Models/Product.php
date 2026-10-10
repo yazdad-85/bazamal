@@ -5,10 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class Product extends Model
 {
+    public const TYPE_MENU = 'menu';
+
+    public const TYPE_INFAK = 'infak';
+
     protected $fillable = [
         'name',
         'slug',
@@ -66,9 +71,33 @@ class Product extends Model
         return $query->where('bazar_type', $type);
     }
 
+    public static function menuOrderingOpen(): bool
+    {
+        $deadline = Carbon::parse(config('bazar.menu_order_deadline'), 'Asia/Jakarta')->endOfDay();
+
+        return now()->timezone('Asia/Jakarta')->lte($deadline);
+    }
+
+    public static function menuDeadlineLabel(): string
+    {
+        return Carbon::parse(config('bazar.menu_order_deadline'), 'Asia/Jakarta')
+            ->locale('id')
+            ->isoFormat('D MMMM Y');
+    }
+
+    public function isInfak(): bool
+    {
+        return $this->bazar_type === self::TYPE_INFAK;
+    }
+
+    public function orderingClosed(): bool
+    {
+        return ! $this->isInfak() && ! static::menuOrderingOpen();
+    }
+
     public function getBazarLabelAttribute(): string
     {
-        return $this->bazar_type === 'besar' ? 'Bazar Besar' : 'Bazar Kecil';
+        return $this->isInfak() ? 'Infak & Sedekah' : 'Menu Bazar';
     }
 
     public function getFormattedPriceAttribute(): string

@@ -28,6 +28,15 @@ class CartController extends Controller
         ]);
 
         $product = Product::active()->findOrFail($data['product_id']);
+
+        if ($product->orderingClosed()) {
+            return back()->with('error', 'Pemesanan Menu Bazar ditutup pada '.Product::menuDeadlineLabel().'. Infak & Sedekah tetap bisa dipesan.');
+        }
+
+        if ($product->stock < 1) {
+            return back()->with('error', 'Stok produk ini habis.');
+        }
+
         $cart->add($product, $data['qty'] ?? 1);
 
         if ($request->boolean('buy_now')) {

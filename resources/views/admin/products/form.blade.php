@@ -34,11 +34,12 @@
                 <input type="number" name="stock" min="0" value="{{ old('stock', $product->stock) }}" required class="w-full rounded-xl border-stone-200">
             </div>
             <div>
-                <label class="block text-sm font-semibold mb-1">Kategori Bazar</label>
+                <label class="block text-sm font-semibold mb-1">Kategori</label>
                 <select name="bazar_type" class="w-full rounded-xl border-stone-200">
-                    <option value="besar" @selected(old('bazar_type', $product->bazar_type) === 'besar')>Bazar Besar</option>
-                    <option value="kecil" @selected(old('bazar_type', $product->bazar_type) === 'kecil')>Bazar Kecil</option>
+                    <option value="menu" @selected(old('bazar_type', $product->bazar_type) === 'menu')>Menu Bazar</option>
+                    <option value="infak" @selected(old('bazar_type', $product->bazar_type) === 'infak')>Infak & Sedekah</option>
                 </select>
+                <p class="text-xs text-stone-400 mt-1">Menu Bazar ditutup 30 November 2026. Infak & Sedekah tetap bisa dipesan.</p>
             </div>
         </div>
 

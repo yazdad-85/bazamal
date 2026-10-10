@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -23,14 +24,16 @@ class BazarFlowTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Menu Bazar Besar')
+            ->assertSee('Menu Bazar')
+            ->assertSee('Infak & Sedekah')
+            ->assertDontSee('Bazar Kecil')
             ->assertDontSee('2 Tombol Menu Utama')
             ->assertDontSee('Toko amal untuk siswa')
             ->assertSee('Copyright '.now()->year)
             ->assertDontSee('Login Panitia')
             ->assertDontSee('>Admin<', false)
             ->assertHeader('X-Frame-Options', 'DENY');
-        $this->get('/bazar?bazar=kecil')->assertOk()->assertSee('Bazar Kecil');
+        $this->get('/bazar?bazar=infak')->assertOk()->assertSee('Infak & Sedekah');
     }
 
     public function test_checkout_siswa_creates_order_and_reduces_stock(): void
@@ -113,7 +116,7 @@ class BazarFlowTest extends TestCase
         $this->seed();
 
         $besar = Product::where('slug', 'kaos-kebaikan')->firstOrFail();
-        $kecil = Product::where('slug', 'snack-ringan-peduli')->firstOrFail();
+        $infak = Product::where('slug', 'infak-sedekah')->firstOrFail();
         $price = $besar->price;
 
         $cart = app(CartService::class);
@@ -141,10 +144,10 @@ class BazarFlowTest extends TestCase
             ->assertSee('Kirim ke Alamat')
             ->assertSee('Jl. Melati No. 8');
 
-        $cart->add($kecil, 1);
+        $cart->add($infak, 1);
 
         Livewire::test(CheckoutForm::class)
-            ->assertSee('Hanya jika semua barang di keranjang dari Bazar Besar')
+            ->assertSee('Hanya jika semua barang di keranjang dari Menu Bazar')
             ->set('buyer_type', 'umum')
             ->set('full_name', 'Siti Umum')
             ->set('phone', '081222222222')
@@ -221,6 +224,28 @@ class BazarFlowTest extends TestCase
             ->assertOk();
     }
 
+    public function test_menu_orders_close_on_1_december_while_infak_stays_open(): void
+    {
+        $this->seed();
+
+        $menu = Product::where('slug', 'kaos-kebaikan')->firstOrFail();
+        $infak = Product::where('slug', 'infak-sedekah')->firstOrFail();
+
+        $this->travelTo(Carbon::parse('2026-11-30 21:00:00', 'Asia/Jakarta'));
+        $this->post(route('cart.store'), ['product_id' => $menu->id, 'qty' => 1])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->travelTo(Carbon::parse('2026-12-01 00:05:00', 'Asia/Jakarta'));
+        $this->post(route('cart.store'), ['product_id' => $menu->id, 'qty' => 1])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->post(route('cart.store'), ['product_id' => $infak->id, 'qty' => 1])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+    }
+
     public function test_admin_can_access_dashboard_and_export(): void
     {
         $this->seed();
@@ -229,7 +254,8 @@ class BazarFlowTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin')
             ->assertOk()
-            ->assertSee('Total Bazar Besar');
+            ->assertSee('Menu Bazar')
+            ->assertSee('Infak & Sedekah', false);
 
         $this->actingAs($admin)
             ->get('/admin/reports/export')

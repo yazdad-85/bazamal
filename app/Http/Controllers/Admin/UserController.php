@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Support\Institutions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -23,8 +22,7 @@ class UserController extends Controller
     public function create(): View
     {
         return view('admin.users.form', [
-            'user' => new User(['role' => User::ROLE_KOORDINATOR, 'institution' => 'SMA']),
-            'institutions' => Institutions::options(),
+            'user' => new User,
         ]);
     }
 
@@ -44,7 +42,6 @@ class UserController extends Controller
     {
         return view('admin.users.form', [
             'user' => $user,
-            'institutions' => Institutions::options(),
         ]);
     }
 
@@ -54,10 +51,6 @@ class UserController extends Controller
 
         if ($data['password'] === null) {
             unset($data['password']);
-        }
-
-        if ($user->isInti() && $data['role'] !== User::ROLE_INTI && $this->intiCount() <= 1) {
-            return back()->withErrors(['role' => 'Harus tersisa minimal satu panitia inti.'])->withInput();
         }
 
         $user->update($data);
@@ -90,20 +83,11 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user?->id)],
-            'role' => ['required', Rule::in([User::ROLE_INTI, User::ROLE_KOORDINATOR])],
-            'institution' => ['nullable', Rule::in(Institutions::options())],
             'password' => [$user ? 'nullable' : 'required', 'confirmed', Password::defaults()],
         ]);
 
-        if ($data['role'] === User::ROLE_KOORDINATOR && empty($data['institution'])) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'institution' => 'Koordinator wajib dipilih lembaganya.',
-            ]);
-        }
-
-        if ($data['role'] === User::ROLE_INTI) {
-            $data['institution'] = null;
-        }
+        $data['role'] = User::ROLE_INTI;
+        $data['institution'] = null;
 
         if (($data['password'] ?? null) === null) {
             $data['password'] = null;

@@ -19,12 +19,12 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <div class="rounded-2xl bg-white border border-stone-200 p-4">
-            <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Total Bazar Besar</p>
-            <p class="text-3xl font-extrabold text-brand-800 mt-1">{{ $stats['total_besar'] }}</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Menu Bazar</p>
+            <p class="text-3xl font-extrabold text-brand-800 mt-1">{{ $stats['total_menu'] }}</p>
         </div>
         <div class="rounded-2xl bg-white border border-stone-200 p-4">
-            <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Total Bazar Kecil</p>
-            <p class="text-3xl font-extrabold text-accent-700 mt-1">{{ $stats['total_kecil'] }}</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Infak & Sedekah</p>
+            <p class="text-3xl font-extrabold text-accent-700 mt-1">{{ $stats['total_infak'] }}</p>
         </div>
         <div class="rounded-2xl bg-white border border-stone-200 p-4">
             <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Menunggu Verifikasi</p>

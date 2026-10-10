@@ -42,11 +42,7 @@ class User extends Authenticatable
 
     public function getRoleLabelAttribute(): string
     {
-        if ($this->isKoordinator()) {
-            return 'Koordinator '.($this->institution ?: 'Lembaga');
-        }
-
-        return 'Panitia Inti';
+        return 'Panitia';
     }
 
     /**

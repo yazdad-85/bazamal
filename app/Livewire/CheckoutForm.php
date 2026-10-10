@@ -52,6 +52,16 @@ class CheckoutForm extends Component
             return;
         }
 
+        if ($cart->items()->contains(function ($item) {
+            $product = Product::find($item['product_id']);
+
+            return $product?->orderingClosed() ?? true;
+        })) {
+            $this->addError('cart', 'Pemesanan Menu Bazar ditutup pada '.Product::menuDeadlineLabel().'. Keluarkan menu tersebut dari keranjang. Infak & Sedekah tetap bisa dipesan.');
+
+            return;
+        }
+
         $limitKey = 'checkout|'.session()->getId().'|'.request()->ip();
         if (RateLimiter::tooManyAttempts($limitKey, 10)) {
             $this->addError('cart', 'Terlalu banyak pesanan dari perangkat ini. Coba lagi dalam beberapa menit.');
@@ -76,7 +86,7 @@ class CheckoutForm extends Component
         }
 
         if ($this->pickup_method === 'kirim_alamat' && ! $cart->allowsHomeDelivery()) {
-            $this->addError('pickup_method', 'Kirim ke alamat hanya untuk pesanan yang seluruhnya dari Bazar Besar.');
+            $this->addError('pickup_method', 'Kirim ke alamat hanya untuk pesanan yang seluruhnya dari Menu Bazar.');
 
             return;
         }
@@ -99,8 +109,16 @@ class CheckoutForm extends Component
                 foreach ($items as $item) {
                     $product = Product::whereKey($item['product_id'])->lockForUpdate()->first();
 
-                    if (! $product || ! $product->is_active || $product->stock < $item['qty']) {
-                        throw new \RuntimeException('Stok tidak mencukupi untuk: '.($product->name ?? $item['name']));
+                    if (! $product || ! $product->is_active) {
+                        throw new \RuntimeException('Produk tidak tersedia: '.($item['name'] ?? 'item'));
+                    }
+
+                    if ($product->orderingClosed()) {
+                        throw new \RuntimeException('Pemesanan Menu Bazar sudah ditutup. Infak & Sedekah tetap bisa dipesan.');
+                    }
+
+                    if ($product->stock < $item['qty']) {
+                        throw new \RuntimeException('Stok tidak mencukupi untuk: '.$product->name);
                     }
 
                     $subtotal += $product->price * $item['qty'];

@@ -56,6 +56,11 @@
             <p class="text-2xl font-extrabold text-brand-700 mt-2">{{ $product->formatted_price }}</p>
             <p class="text-sm text-stone-600 mt-3">{{ $product->description }}</p>
             <p class="text-xs text-brand-600 font-semibold mt-2">100% keuntungan untuk donasi panti asuhan.</p>
+            @if ($product->orderingClosed())
+                <p class="text-sm text-red-600 font-semibold mt-2">Pemesanan menu sudah ditutup pada {{ $product->menuDeadlineLabel() }}.</p>
+            @elseif (! $product->isInfak())
+                <p class="text-sm text-stone-500 mt-2">Pemesanan menu dibuka sampai {{ $product->menuDeadlineLabel() }}.</p>
+            @endif
         </div>
 
         <form action="{{ route('cart.store') }}" method="POST" class="space-y-3" x-data="{ qty: 1 }">
@@ -68,11 +73,11 @@
                 <button type="button" @click="qty = Math.min({{ max($product->stock, 1) }}, qty + 1)" class="w-10 h-10 rounded-full border border-stone-200 font-bold">+</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button type="submit" @disabled($product->stock < 1)
+                <button type="submit" @disabled($product->stock < 1 || $product->orderingClosed())
                         class="w-full rounded-xl border-2 border-brand-600 text-brand-700 font-bold py-3 disabled:opacity-40">
                     Masukkan Keranjang
                 </button>
-                <button type="submit" name="buy_now" value="1" @disabled($product->stock < 1)
+                <button type="submit" name="buy_now" value="1" @disabled($product->stock < 1 || $product->orderingClosed())
                         class="w-full rounded-xl bg-accent-600 hover:bg-accent-500 text-white font-bold py-3 disabled:opacity-40">
                     Beli Sekarang
                 </button>

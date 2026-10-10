@@ -15,7 +15,7 @@ class ProductController extends Controller
     {
         $query = Product::query()->latest();
 
-        if ($request->filled('bazar') && in_array($request->bazar, ['besar', 'kecil'], true)) {
+        if ($request->filled('bazar') && in_array($request->bazar, [Product::TYPE_MENU, Product::TYPE_INFAK], true)) {
             $query->where('bazar_type', $request->bazar);
         }
 
@@ -31,7 +31,7 @@ class ProductController extends Controller
     public function create(): View
     {
         return view('admin.products.form', [
-            'product' => new Product(['bazar_type' => 'kecil', 'is_active' => true, 'stock' => 0]),
+            'product' => new Product(['bazar_type' => Product::TYPE_MENU, 'is_active' => true, 'stock' => 0]),
         ]);
     }
 
@@ -92,7 +92,7 @@ class ProductController extends Controller
             'description' => ['nullable', 'string'],
             'price' => ['required', 'integer', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
-            'bazar_type' => ['required', 'in:besar,kecil'],
+            'bazar_type' => ['required', 'in:menu,infak'],
             'is_active' => ['nullable', 'boolean'],
             'image' => ['nullable', 'image', 'max:2048'],
         ]);

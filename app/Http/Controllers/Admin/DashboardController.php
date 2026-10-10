@@ -21,8 +21,8 @@ class DashboardController extends Controller
             ->institutionFilter($institution);
 
         $stats = [
-            'total_besar' => Product::where('bazar_type', 'besar')->where('is_active', true)->count(),
-            'total_kecil' => Product::where('bazar_type', 'kecil')->where('is_active', true)->count(),
+            'total_menu' => Product::where('bazar_type', Product::TYPE_MENU)->where('is_active', true)->count(),
+            'total_infak' => Product::where('bazar_type', Product::TYPE_INFAK)->where('is_active', true)->count(),
             'menunggu' => (clone $ordersQuery)->where('status', 'menunggu_verifikasi')->count(),
             'total_orders' => (clone $ordersQuery)->count(),
             'omzet' => (clone $ordersQuery)->where('status', '!=', 'batal')->sum('subtotal'),

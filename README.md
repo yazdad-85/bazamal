@@ -61,10 +61,10 @@ Akun admin terakhir tidak bisa dihapus. Ganti password lewat profil setelah masu
 
 ## Fitur
 
-- Etalase **Bazar Besar** & **Bazar Kecil**
+- Etalase **Menu Bazar** (pesan sampai 30 November 2026) dan **Infak & Sedekah** (tetap dibuka)
 - Keranjang session + smart checkout Siswa/Umum
-- Metode ambil: ambil di lokasi bazar, atau kirim ke alamat (hanya Bazar Besar, tanpa ongkir, diantar tim panitia)
+- Metode ambil: ambil di lokasi bazar, atau kirim ke alamat (hanya Menu Bazar, tanpa ongkir, diantar tim panitia)
 - Bayar: QRIS (gambar statis, dicek panitia) / transfer + bukti / tunai
 - Admin: CRUD produk, filter pesanan, ubah status, export CSV
-- Pengguna: panitia inti mengatur semua lembaga; koordinator hanya pesanan lembaganya
+- Pengguna: semua akun panitia mengurus seluruh pesanan
 - SEO: judul, deskripsi, Open Graph, sitemap, dan robots. Halaman admin, login, keranjang, dan pesanan tidak diindeks

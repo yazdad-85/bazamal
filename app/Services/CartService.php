@@ -101,6 +101,6 @@ class CartService
             return false;
         }
 
-        return $items->every(fn ($item) => ($item['bazar_type'] ?? null) === 'besar');
+        return $items->every(fn ($item) => in_array($item['bazar_type'] ?? null, [Product::TYPE_MENU, 'besar'], true));
     }
 }

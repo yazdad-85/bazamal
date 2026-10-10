@@ -23,9 +23,9 @@ class SeoTest extends TestCase
             ->assertSee('Toko Amal untuk Siswa dan Masyarakat', false)
             ->assertSee('application/ld+json', false);
 
-        $this->get('/bazar?bazar=kecil')
+        $this->get('/bazar?bazar=infak')
             ->assertOk()
-            ->assertSee('Katalog Bazar Kecil', false)
+            ->assertSee('Infak dan sedekah', false)
             ->assertSee('rel="canonical"', false);
 
         $this->get('/bazar?bazar=besar&q=rahasia')
@@ -54,7 +54,7 @@ class SeoTest extends TestCase
             'name' => 'Produk Disembunyikan',
             'price' => 1000,
             'stock' => 1,
-            'bazar_type' => 'kecil',
+            'bazar_type' => 'infak',
             'is_active' => false,
         ]);
 
@@ -69,8 +69,8 @@ class SeoTest extends TestCase
         $this->get('/sitemap.xml')
             ->assertOk()
             ->assertSee(route('products.show', $active), false)
-            ->assertSee('bazar=besar', false)
-            ->assertSee('bazar=kecil', false)
+            ->assertSee('bazar=menu', false)
+            ->assertSee('bazar=infak', false)
             ->assertDontSee(route('products.show', $hidden), false);
     }
 }

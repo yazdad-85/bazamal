@@ -18,7 +18,7 @@
                         '@type' => 'SearchAction',
                         'target' => [
                             '@type' => 'EntryPoint',
-                            'urlTemplate' => route('products.index', ['bazar' => 'besar']).'&q={search_term_string}',
+                            'urlTemplate' => route('products.index', ['bazar' => 'menu']).'&q={search_term_string}',
                         ],
                         'query-input' => 'required name=search_term_string',
                     ],
@@ -47,24 +47,24 @@
 
     <section class="px-4 -mt-5 relative z-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <a href="{{ route('products.index', ['bazar' => 'besar']) }}"
+            <a href="{{ route('products.index', ['bazar' => 'menu']) }}"
                class="rounded-2xl bg-accent-700 hover:bg-accent-600 text-white p-5 shadow-lg shadow-orange-900/10 transition flex items-center gap-4">
                 <span class="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 </span>
                 <span>
-                    <span class="block font-extrabold text-lg leading-tight">Menu Bazar Besar</span>
-                    <span class="text-xs text-white/80">Barang utama & paket amal</span>
+                    <span class="block font-extrabold text-lg leading-tight">Menu Bazar</span>
+                    <span class="text-xs text-white/80">Pesan sampai {{ \App\Models\Product::menuDeadlineLabel() }}</span>
                 </span>
             </a>
-            <a href="{{ route('products.index', ['bazar' => 'kecil']) }}"
+            <a href="{{ route('products.index', ['bazar' => 'infak']) }}"
                class="rounded-2xl bg-accent-500 hover:bg-accent-400 text-white p-5 shadow-lg shadow-orange-900/10 transition flex items-center gap-4">
                 <span class="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                 </span>
                 <span>
-                    <span class="block font-extrabold text-lg leading-tight">Menu Bazar Kecil</span>
-                    <span class="text-xs text-white/80">Jajanan & merchandise</span>
+                    <span class="block font-extrabold text-lg leading-tight">Infak & Sedekah</span>
+                    <span class="text-xs text-white/80">Tetap dibuka</span>
                 </span>
             </a>
         </div>
@@ -73,7 +73,7 @@
     <section class="px-4 mt-8">
         <div class="flex items-end justify-between mb-3">
             <h2 class="font-display font-bold text-lg text-brand-800">Produk Pilihan</h2>
-            <a href="{{ route('products.index', ['bazar' => 'besar']) }}" class="text-sm font-semibold text-brand-600">Lihat semua</a>
+            <a href="{{ route('products.index', ['bazar' => 'menu']) }}" class="text-sm font-semibold text-brand-600">Lihat semua</a>
         </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             @forelse ($products as $product)

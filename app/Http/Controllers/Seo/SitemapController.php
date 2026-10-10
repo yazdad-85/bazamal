@@ -16,11 +16,11 @@ class SitemapController extends Controller
                 'lastmod' => now()->toDateString(),
             ],
             [
-                'loc' => route('products.index', ['bazar' => 'besar']),
+                'loc' => route('products.index', ['bazar' => 'menu']),
                 'lastmod' => now()->toDateString(),
             ],
             [
-                'loc' => route('products.index', ['bazar' => 'kecil']),
+                'loc' => route('products.index', ['bazar' => 'infak']),
                 'lastmod' => now()->toDateString(),
             ],
         ];

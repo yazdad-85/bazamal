@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="flex items-center justify-between gap-3 mb-5">
-        <p class="text-sm text-stone-500">Panitia inti melihat semua lembaga. Koordinator hanya mengurus pesanan lembaganya.</p>
+        <p class="text-sm text-stone-500">Setiap akun panitia dapat mengurus seluruh pesanan.</p>
         <a href="{{ route('admin.users.create') }}" class="rounded-xl bg-brand-700 text-white font-bold px-4 py-2.5 text-sm whitespace-nowrap">Tambah Pengguna</a>
     </div>
 

@@ -12,9 +12,12 @@ class ProductController extends Controller
 {
     public function index(Request $request, CartService $cart): View
     {
-        $type = $request->query('bazar', 'besar');
-        if (! in_array($type, ['besar', 'kecil'], true)) {
-            $type = 'besar';
+        $type = $request->query('bazar', Product::TYPE_MENU);
+        if ($type === 'besar') {
+            $type = Product::TYPE_MENU;
+        }
+        if (! in_array($type, [Product::TYPE_MENU, Product::TYPE_INFAK], true)) {
+            $type = Product::TYPE_MENU;
         }
 
         $products = Product::active()
@@ -27,6 +30,8 @@ class ProductController extends Controller
             'products' => $products,
             'bazarType' => $type,
             'cartCount' => $cart->count(),
+            'menuOrderingOpen' => Product::menuOrderingOpen(),
+            'menuDeadlineLabel' => Product::menuDeadlineLabel(),
         ]);
     }
 

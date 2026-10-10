@@ -8,9 +8,9 @@
         <form method="get" class="flex flex-wrap gap-2">
             <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari produk..." class="rounded-xl border-stone-200 text-sm">
             <select name="bazar" class="rounded-xl border-stone-200 text-sm">
-                <option value="">Semua Bazar</option>
-                <option value="besar" @selected(request('bazar') === 'besar')>Bazar Besar</option>
-                <option value="kecil" @selected(request('bazar') === 'kecil')>Bazar Kecil</option>
+                <option value="">Semua Kategori</option>
+                <option value="menu" @selected(request('bazar') === 'menu')>Menu Bazar</option>
+                <option value="infak" @selected(request('bazar') === 'infak')>Infak & Sedekah</option>
             </select>
             <button class="rounded-xl bg-stone-800 text-white text-sm font-bold px-4 py-2">Filter</button>
         </form>
@@ -22,7 +22,7 @@
             <thead class="bg-stone-50 text-left text-stone-500">
                 <tr>
                     <th class="px-4 py-3">Produk</th>
-                    <th class="px-4 py-3">Bazar</th>
+                    <th class="px-4 py-3">Kategori</th>
                     <th class="px-4 py-3">Harga</th>
                     <th class="px-4 py-3">Stok</th>
                     <th class="px-4 py-3">Status</th>

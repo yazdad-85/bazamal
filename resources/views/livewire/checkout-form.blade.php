@@ -64,7 +64,7 @@
                     <input type="radio" name="pickup_method" wire:model.live="pickup_method" value="kirim_alamat" class="mt-1 text-brand-600">
                     <span class="text-sm">
                         <span class="font-semibold">Kirim ke Alamat</span>
-                        <span class="block text-xs text-stone-500 mt-0.5">Khusus Bazar Besar. Tanpa ongkir, diantar tim panitia.</span>
+                        <span class="block text-xs text-stone-500 mt-0.5">Khusus Menu Bazar. Tanpa ongkir, diantar tim panitia.</span>
                     </span>
                 </label>
             @else
@@ -72,7 +72,7 @@
                     <input type="radio" disabled class="mt-1 text-stone-400">
                     <span class="text-sm">
                         Kirim ke Alamat
-                        <span class="block text-xs text-stone-400 mt-0.5">Hanya jika semua barang di keranjang dari Bazar Besar.</span>
+                        <span class="block text-xs text-stone-400 mt-0.5">Hanya jika semua barang di keranjang dari Menu Bazar.</span>
                     </span>
                 </label>
             @endif

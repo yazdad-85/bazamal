@@ -16,9 +16,9 @@
         <input type="search" wire:model.live.debounce.300ms="search" placeholder="Cari kode / nama..."
                class="rounded-xl border-stone-200 text-sm">
         <select wire:model.live="bazar" class="rounded-xl border-stone-200 text-sm">
-            <option value="semua">Semua Kategori Bazar</option>
-            <option value="besar">Bazar Besar</option>
-            <option value="kecil">Bazar Kecil</option>
+            <option value="semua">Semua Kategori</option>
+            <option value="menu">Menu Bazar</option>
+            <option value="infak">Infak & Sedekah</option>
         </select>
         <select wire:model.live="status" class="rounded-xl border-stone-200 text-sm">
             <option value="semua">Semua Status</option>

@@ -48,23 +48,21 @@ class BazarFlowTest extends TestCase
         $cart->add($product, 1);
 
         Livewire::test(CheckoutForm::class)
-            ->set('buyer_type', 'siswa')
-            ->assertDontSee('Diantar ke Kelas')
-            ->set('institution', 'SMA')
-            ->set('class_name', 'XI-IPA 2')
-            ->set('full_name', 'Andi Siswa')
-            ->set('phone', '')
-            ->set('pickup_method', 'ambil_stand')
+            ->assertDontSee('Siswa')
+            ->assertDontSee('Ambil di Lokasi')
+            ->set('full_name', 'Andi Pembeli')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('payment_method', 'tunai')
             ->call('submit')
             ->assertRedirect();
 
         $order = Order::first();
         $this->assertNotNull($order);
-        $this->assertSame('siswa', $order->buyer_type);
-        $this->assertSame('ambil_stand', $order->pickup_method);
-        $this->assertNull($order->phone);
-        $this->assertSame('SMA', $order->institution);
+        $this->assertSame('umum', $order->buyer_type);
+        $this->assertSame('kirim_alamat', $order->pickup_method);
+        $this->assertSame('081234567890', $order->phone);
+        $this->assertNull($order->institution);
         $this->assertSame('diproses', $order->status);
         $this->assertSame(1, $order->items()->count());
         $this->assertSame($stockBefore - 1, $product->fresh()->stock);
@@ -89,10 +87,9 @@ class BazarFlowTest extends TestCase
         $cart->add($product, 1);
 
         Livewire::test(CheckoutForm::class)
-            ->set('buyer_type', 'umum')
             ->set('full_name', 'Budi Umum')
             ->set('phone', '081111111111')
-            ->set('pickup_method', 'ambil_stand')
+            ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('payment_method', 'online')
             ->call('submit')
             ->assertRedirect();
@@ -118,18 +115,17 @@ class BazarFlowTest extends TestCase
 
         $besar = Product::where('slug', 'kaos-kebaikan')->firstOrFail();
         $infak = Product::where('slug', 'infak-sedekah')->firstOrFail();
-        $price = $besar->price;
+        $price = $besar->price + $infak->price;
 
         $cart = app(CartService::class);
         $cart->add($besar, 1);
+        $cart->add($infak, 1);
 
         Livewire::test(CheckoutForm::class)
-            ->assertSee('Kirim ke Alamat')
-            ->assertSee('Tanpa ongkir, diantar tim panitia')
-            ->set('buyer_type', 'umum')
+            ->assertSee('Tidak ada biaya kirim')
+            ->assertDontSee('Ambil di Lokasi')
             ->set('full_name', 'Siti Umum')
             ->set('phone', '081222222222')
-            ->set('pickup_method', 'kirim_alamat')
             ->set('delivery_address', 'Jl. Melati No. 8, RT 02/RW 03, Kelurahan Sumber')
             ->set('payment_method', 'tunai')
             ->call('submit')
@@ -144,21 +140,6 @@ class BazarFlowTest extends TestCase
             ->assertOk()
             ->assertSee('Kirim ke Alamat')
             ->assertSee('Jl. Melati No. 8');
-
-        $cart->add($infak, 1);
-
-        Livewire::test(CheckoutForm::class)
-            ->assertSee('Hanya jika semua barang di keranjang dari Menu Bazar')
-            ->set('buyer_type', 'umum')
-            ->set('full_name', 'Siti Umum')
-            ->set('phone', '081222222222')
-            ->set('pickup_method', 'kirim_alamat')
-            ->set('delivery_address', 'Jl. Melati No. 8')
-            ->set('payment_method', 'tunai')
-            ->call('submit')
-            ->assertHasErrors('pickup_method');
-
-        $this->assertSame(1, Order::count());
     }
 
     public function test_order_details_are_not_visible_from_another_session(): void
@@ -169,10 +150,9 @@ class BazarFlowTest extends TestCase
         app(CartService::class)->add($product, 1);
 
         Livewire::test(CheckoutForm::class)
-            ->set('buyer_type', 'umum')
             ->set('full_name', 'Rahasia Pembeli')
             ->set('phone', '081234567890')
-            ->set('pickup_method', 'ambil_stand')
+            ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('payment_method', 'tunai')
             ->call('submit')
             ->assertRedirect();
@@ -204,10 +184,9 @@ class BazarFlowTest extends TestCase
         app(CartService::class)->add($product, 1);
 
         Livewire::test(CheckoutForm::class)
-            ->set('buyer_type', 'umum')
             ->set('full_name', 'Pembeli Transfer')
             ->set('phone', '081234567890')
-            ->set('pickup_method', 'ambil_stand')
+            ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('payment_method', 'transfer')
             ->set('payment_proof', UploadedFile::fake()->image('bukti.jpg'))
             ->call('submit')

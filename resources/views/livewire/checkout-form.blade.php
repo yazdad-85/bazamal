@@ -3,39 +3,6 @@
         <div class="rounded-xl bg-red-50 text-red-700 text-sm px-4 py-3">{{ $message }}</div>
     @enderror
 
-    <section>
-        <h2 class="font-bold text-brand-800 mb-2">Tipe Pembeli</h2>
-        <div class="grid grid-cols-2 gap-2">
-            <label @class(['rounded-xl border-2 p-3 cursor-pointer text-center font-semibold', $buyer_type === 'umum' ? 'border-brand-600 bg-brand-50' : 'border-stone-200'])>
-                <input type="radio" name="buyer_type" wire:model.live="buyer_type" value="umum" class="sr-only"> Umum
-            </label>
-            <label @class(['rounded-xl border-2 p-3 cursor-pointer text-center font-semibold', $buyer_type === 'siswa' ? 'border-brand-600 bg-brand-50' : 'border-stone-200'])>
-                <input type="radio" name="buyer_type" wire:model.live="buyer_type" value="siswa" class="sr-only"> Siswa
-            </label>
-        </div>
-    </section>
-
-    @if ($buyer_type === 'siswa')
-        <section class="rounded-2xl border-2 border-accent-400 bg-orange-50/70 p-4 space-y-3">
-            <p class="text-[11px] font-extrabold uppercase tracking-wider text-accent-700">Fitur Baru — Data Siswa</p>
-            <div>
-                <label class="block text-sm font-semibold mb-1">Asal Lembaga</label>
-                <select wire:model="institution" class="w-full rounded-xl border-stone-200">
-                    @foreach ($institutions as $opt)
-                        <option value="{{ $opt }}">{{ $opt }}</option>
-                    @endforeach
-                </select>
-                @error('institution') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-            </div>
-            <div>
-                <label class="block text-sm font-semibold mb-1">Kelas</label>
-                <input type="text" wire:model="class_name" placeholder="Contoh: XI-IPA 2"
-                       class="w-full rounded-xl border-stone-200">
-                @error('class_name') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-            </div>
-        </section>
-    @endif
-
     <section class="space-y-3">
         <div>
             <label class="block text-sm font-semibold mb-1">Nama Lengkap</label>
@@ -44,55 +11,20 @@
         </div>
         <div>
             <label class="block text-sm font-semibold mb-1">No. HP / WhatsApp</label>
-            <input type="text" wire:model="phone" class="w-full rounded-xl border-stone-200" placeholder="08xxxxxxxxxx" @required($buyer_type !== 'siswa')>
+            <input type="text" wire:model="phone" class="w-full rounded-xl border-stone-200" placeholder="08xxxxxxxxxx" required>
             @error('phone') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-            <p class="text-xs text-stone-400 mt-1">
-                @if ($buyer_type === 'siswa')
-                    Opsional untuk siswa. Isi jika panitia perlu menghubungi lewat WhatsApp.
-                @else
-                    Wajib diisi agar panitia bisa menghubungi dan pesanan tidak hilang.
-                @endif
-            </p>
+            <p class="text-xs text-stone-400 mt-1">Wajib diisi agar panitia bisa menghubungi dan pesanan tidak hilang.</p>
         </div>
     </section>
 
     <section>
-        <h2 class="font-bold text-brand-800 mb-2">Metode Pengambilan</h2>
-        <div class="space-y-2">
-            @if ($canDeliver)
-                <label @class(['flex items-start gap-3 rounded-xl border p-3 cursor-pointer', $pickup_method === 'kirim_alamat' ? 'border-brand-600 bg-brand-50' : 'border-stone-200'])>
-                    <input type="radio" name="pickup_method" wire:model.live="pickup_method" value="kirim_alamat" class="mt-1 text-brand-600">
-                    <span class="text-sm">
-                        <span class="font-semibold">Kirim ke Alamat</span>
-                        <span class="block text-xs text-stone-500 mt-0.5">Khusus Menu Bazar. Tanpa ongkir, diantar tim panitia.</span>
-                    </span>
-                </label>
-            @else
-                <label class="flex items-start gap-3 rounded-xl border border-stone-200 p-3 opacity-60 cursor-not-allowed">
-                    <input type="radio" disabled class="mt-1 text-stone-400">
-                    <span class="text-sm">
-                        Kirim ke Alamat
-                        <span class="block text-xs text-stone-400 mt-0.5">Hanya jika semua barang di keranjang dari Menu Bazar.</span>
-                    </span>
-                </label>
-            @endif
-            <label @class(['flex items-center gap-3 rounded-xl border p-3 cursor-pointer', $pickup_method === 'ambil_stand' ? 'border-brand-600 bg-brand-50' : 'border-stone-200'])>
-                <input type="radio" name="pickup_method" wire:model.live="pickup_method" value="ambil_stand" class="text-brand-600">
-                <span class="text-sm font-semibold">Ambil di Lokasi Bazar</span>
-            </label>
-        </div>
-        @error('pickup_method') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-
-        @if ($canDeliver && $pickup_method === 'kirim_alamat')
-            <div class="mt-3">
-                <label class="block text-sm font-semibold mb-1">Alamat pengiriman</label>
-                <textarea wire:model="delivery_address" rows="3"
-                          placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, dan catatan untuk tim pengantar"
-                          class="w-full rounded-xl border-stone-200"></textarea>
-                @error('delivery_address') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-                <p class="text-xs text-stone-400 mt-1">Tidak ada biaya kirim. Tim panitia yang mengantar.</p>
-            </div>
-        @endif
+        <h2 class="font-bold text-brand-800 mb-2">Pengiriman</h2>
+        <p class="text-sm text-stone-500 mb-3">Pesanan diantar ke alamat. Tidak ada biaya kirim. Tim panitia yang mengantar.</p>
+        <label class="block text-sm font-semibold mb-1">Alamat pengiriman</label>
+        <textarea wire:model="delivery_address" rows="3" required
+                  placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, dan catatan untuk tim pengantar"
+                  class="w-full rounded-xl border-stone-200"></textarea>
+        @error('delivery_address') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
     </section>
 
     <section>

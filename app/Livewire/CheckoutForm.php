@@ -8,7 +8,6 @@ use App\Models\Product;
 use App\Models\Setting;
 use App\Services\CartService;
 use App\Services\OrderHistoryService;
-use App\Support\Institutions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
@@ -19,30 +18,15 @@ class CheckoutForm extends Component
 {
     use WithFileUploads;
 
-    public string $buyer_type = 'umum';
-
-    public string $institution = 'SMA';
-
-    public string $class_name = '';
-
     public string $full_name = '';
 
     public string $phone = '';
-
-    public string $pickup_method = 'ambil_stand';
 
     public string $delivery_address = '';
 
     public string $payment_method = 'online';
 
     public $payment_proof;
-
-    public function updatedBuyerType(string $value): void
-    {
-        if ($value === 'umum') {
-            $this->class_name = '';
-        }
-    }
 
     public function submit(CartService $cart)
     {
@@ -71,29 +55,11 @@ class CheckoutForm extends Component
         RateLimiter::hit($limitKey, 600);
 
         $rules = [
-            'buyer_type' => ['required', Rule::in(['umum', 'siswa'])],
             'full_name' => ['required', 'string', 'max:255'],
-            'phone' => $this->buyer_type === 'siswa'
-                ? ['nullable', 'string', 'max:30']
-                : ['required', 'string', 'max:30'],
-            'pickup_method' => ['required', Rule::in(['ambil_stand', 'kirim_alamat'])],
+            'phone' => ['required', 'string', 'max:30'],
+            'delivery_address' => ['required', 'string', 'max:500'],
             'payment_method' => ['required', Rule::in(['online', 'transfer', 'tunai'])],
         ];
-
-        if ($this->buyer_type === 'siswa') {
-            $rules['institution'] = ['required', Rule::in(Institutions::options())];
-            $rules['class_name'] = ['required', 'string', 'max:50'];
-        }
-
-        if ($this->pickup_method === 'kirim_alamat' && ! $cart->allowsHomeDelivery()) {
-            $this->addError('pickup_method', 'Kirim ke alamat hanya untuk pesanan yang seluruhnya dari Menu Bazar.');
-
-            return;
-        }
-
-        if ($this->pickup_method === 'kirim_alamat') {
-            $rules['delivery_address'] = ['required', 'string', 'max:500'];
-        }
 
         if ($this->payment_method === 'transfer') {
             $rules['payment_proof'] = ['required', 'image', 'max:2048'];
@@ -135,13 +101,13 @@ class CheckoutForm extends Component
 
                 $order = Order::create([
                     'order_code' => Order::generateCode(),
-                    'buyer_type' => $this->buyer_type,
-                    'institution' => $this->buyer_type === 'siswa' ? $this->institution : null,
-                    'class_name' => $this->buyer_type === 'siswa' ? $this->class_name : null,
+                    'buyer_type' => 'umum',
+                    'institution' => null,
+                    'class_name' => null,
                     'full_name' => $this->full_name,
-                    'phone' => $this->phone ?: null,
-                    'pickup_method' => $this->pickup_method,
-                    'delivery_address' => $this->pickup_method === 'kirim_alamat' ? $this->delivery_address : null,
+                    'phone' => $this->phone,
+                    'pickup_method' => 'kirim_alamat',
+                    'delivery_address' => $this->delivery_address,
                     'payment_method' => $this->payment_method,
                     'payment_proof' => $proofPath,
                     'subtotal' => $subtotal,
@@ -178,12 +144,10 @@ class CheckoutForm extends Component
         return redirect()->route('checkout.success', ['orderCode' => $order->order_code]);
     }
 
-    public function render(CartService $cart)
+    public function render()
     {
         return view('livewire.checkout-form', [
-            'institutions' => Institutions::options(),
             'bankInfo' => Setting::bankInfo(),
-            'canDeliver' => $cart->allowsHomeDelivery(),
             'qrisUrl' => Setting::qrisUrl(),
         ]);
     }

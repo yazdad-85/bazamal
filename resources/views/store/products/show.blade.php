@@ -43,9 +43,6 @@
             <span class="rounded-full bg-amber-300 text-amber-950 text-[11px] font-bold px-3 py-1">
                 Kategori: {{ $product->bazar_label }}
             </span>
-            <span class="rounded-full bg-violet-600 text-white text-[11px] font-bold px-3 py-1">
-                Bisa dibeli Siswa & Umum
-            </span>
         </div>
     </div>
 

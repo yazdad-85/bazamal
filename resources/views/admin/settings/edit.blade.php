@@ -77,7 +77,7 @@
         <section class="bg-white rounded-2xl border border-stone-200 p-5 space-y-4">
             <div>
                 <h2 class="font-bold text-brand-800">Nomor WhatsApp</h2>
-                <p class="text-sm text-stone-500 mt-1">Format: 628xxxxxxxxxx (tanpa +). Pesanan siswa dikirim ke WA lembaga; umum ke bendahara inti.</p>
+                <p class="text-sm text-stone-500 mt-1">Format: 628xxxxxxxxxx (tanpa +). Pesanan baru dikirim ke bendahara inti.</p>
             </div>
 
             <div class="rounded-xl bg-orange-50 border border-accent-400/40 p-4">

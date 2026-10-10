@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\CheckoutForm;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\CartService;
@@ -250,12 +251,42 @@ class BazarFlowTest extends TestCase
     {
         $this->seed();
         $admin = User::where('email', 'admin@bazar.test')->firstOrFail();
+        $menu = Product::where('bazar_type', Product::TYPE_MENU)->firstOrFail();
+        $infak = Product::where('bazar_type', Product::TYPE_INFAK)->firstOrFail();
+        $order = Order::create([
+            'order_code' => 'BA-DASH-1',
+            'buyer_type' => 'umum',
+            'full_name' => 'Pembeli Dashboard',
+            'phone' => '081234567890',
+            'pickup_method' => 'ambil_stand',
+            'payment_method' => 'tunai',
+            'subtotal' => 25000,
+            'status' => 'diproses',
+        ]);
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $menu->id,
+            'product_name' => $menu->name,
+            'price' => 15000,
+            'qty' => 1,
+            'line_total' => 15000,
+        ]);
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $infak->id,
+            'product_name' => $infak->name,
+            'price' => 10000,
+            'qty' => 1,
+            'line_total' => 10000,
+        ]);
 
         $this->actingAs($admin)
             ->get('/admin')
             ->assertOk()
-            ->assertSee('Menu Bazar')
-            ->assertSee('Infak & Sedekah', false);
+            ->assertSee('Total Menu Bazar')
+            ->assertSee('Rp 15.000')
+            ->assertSee('Total Infak & Sedekah', false)
+            ->assertSee('Rp 10.000');
 
         $this->actingAs($admin)
             ->get('/admin/reports/export')

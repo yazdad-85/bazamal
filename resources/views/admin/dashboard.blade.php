@@ -19,12 +19,14 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <div class="rounded-2xl bg-white border border-stone-200 p-4">
-            <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Menu Bazar</p>
-            <p class="text-3xl font-extrabold text-brand-800 mt-1">{{ $stats['total_menu'] }}</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Total Menu Bazar</p>
+            <p class="text-2xl font-extrabold text-brand-800 mt-1">Rp {{ number_format($stats['total_menu'], 0, ',', '.') }}</p>
+            <p class="text-xs text-stone-400 mt-1">{{ $stats['menu_products'] }} produk aktif</p>
         </div>
         <div class="rounded-2xl bg-white border border-stone-200 p-4">
-            <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Infak & Sedekah</p>
-            <p class="text-3xl font-extrabold text-accent-700 mt-1">{{ $stats['total_infak'] }}</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Total Infak & Sedekah</p>
+            <p class="text-2xl font-extrabold text-accent-700 mt-1">Rp {{ number_format($stats['total_infak'], 0, ',', '.') }}</p>
+            <p class="text-xs text-stone-400 mt-1">{{ $stats['infak_products'] }} produk aktif</p>
         </div>
         <div class="rounded-2xl bg-white border border-stone-200 p-4">
             <p class="text-xs font-bold uppercase tracking-wide text-stone-400">Menunggu Verifikasi</p>

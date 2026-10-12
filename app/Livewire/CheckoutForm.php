@@ -58,7 +58,7 @@ class CheckoutForm extends Component
             'full_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:30'],
             'delivery_address' => ['required', 'string', 'max:500'],
-            'payment_method' => ['required', Rule::in(['online', 'transfer', 'tunai'])],
+            'payment_method' => ['required', Rule::in(array_keys(Order::checkoutPaymentMethods()))],
         ];
 
         if ($this->payment_method === 'transfer') {
@@ -149,6 +149,7 @@ class CheckoutForm extends Component
         return view('livewire.checkout-form', [
             'bankInfo' => Setting::bankInfo(),
             'qrisUrl' => Setting::qrisUrl(),
+            'paymentMethods' => Order::checkoutPaymentMethods(),
         ]);
     }
 }

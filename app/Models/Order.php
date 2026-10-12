@@ -84,6 +84,23 @@ class Order extends Model
         };
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public static function checkoutPaymentMethods(): array
+    {
+        $methods = [
+            'online' => 'QRIS',
+            'transfer' => 'Transfer Bank Manual',
+        ];
+
+        if (config('bazar.cash_payment_enabled')) {
+            $methods['tunai'] = 'Tunai (Cash/COD)';
+        }
+
+        return $methods;
+    }
+
     public function getPaymentMethodLabelAttribute(): string
     {
         return match ($this->payment_method) {

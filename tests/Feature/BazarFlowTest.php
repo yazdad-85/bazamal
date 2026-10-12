@@ -48,8 +48,22 @@ class BazarFlowTest extends TestCase
         $cart->add($product, 1);
 
         Livewire::test(CheckoutForm::class)
+            ->assertDontSee('Tunai (Cash/COD)')
+            ->set('full_name', 'Andi Pembeli')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('payment_method', 'tunai')
+            ->call('submit')
+            ->assertHasErrors(['payment_method']);
+
+        $this->assertSame(0, Order::count());
+
+        config(['bazar.cash_payment_enabled' => true]);
+
+        Livewire::test(CheckoutForm::class)
             ->assertDontSee('Siswa')
             ->assertDontSee('Ambil di Lokasi')
+            ->assertSee('Tunai (Cash/COD)')
             ->set('full_name', 'Andi Pembeli')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
@@ -127,7 +141,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Siti Umum')
             ->set('phone', '081222222222')
             ->set('delivery_address', 'Jl. Melati No. 8, RT 02/RW 03, Kelurahan Sumber')
-            ->set('payment_method', 'tunai')
+            ->set('payment_method', 'online')
             ->call('submit')
             ->assertRedirect();
 
@@ -153,7 +167,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Rahasia Pembeli')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
-            ->set('payment_method', 'tunai')
+            ->set('payment_method', 'online')
             ->call('submit')
             ->assertRedirect();
 

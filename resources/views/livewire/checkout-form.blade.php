@@ -29,12 +29,8 @@
 
     <section>
         <h2 class="font-bold text-brand-800 mb-2">Metode Pembayaran</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            @foreach ([
-                'online' => 'QRIS',
-                'transfer' => 'Transfer Bank Manual',
-                'tunai' => 'Tunai (Cash/COD)',
-            ] as $value => $label)
+        <div @class(['grid grid-cols-1 gap-2', 'sm:grid-cols-3' => count($paymentMethods) === 3, 'sm:grid-cols-2' => count($paymentMethods) !== 3])>
+            @foreach ($paymentMethods as $value => $label)
                 <label @class(['rounded-xl border-2 p-3 cursor-pointer text-center text-sm font-semibold', $payment_method === $value ? 'border-accent-600 bg-orange-50' : 'border-stone-200'])>
                     <input type="radio" name="payment_method" wire:model.live="payment_method" value="{{ $value }}" class="sr-only">
                     {{ $label }}

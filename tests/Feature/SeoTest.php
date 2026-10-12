@@ -42,7 +42,10 @@ class SeoTest extends TestCase
             ->assertOk()
             ->assertSee('noindex, nofollow', false);
 
-        $this->get('/login')
+        $this->get('/login')->assertNotFound();
+        $this->get('/admin')->assertNotFound();
+
+        $this->get(route('login'))
             ->assertOk()
             ->assertSee('noindex, nofollow', false);
     }
@@ -65,6 +68,8 @@ class SeoTest extends TestCase
             ->assertOk()
             ->assertSee('Disallow: /admin')
             ->assertSee('Disallow: /pesanan')
+            ->assertDontSee('yasm-gerbang')
+            ->assertDontSee('/login')
             ->assertSee('/sitemap.xml');
 
         $this->get('/sitemap.xml')

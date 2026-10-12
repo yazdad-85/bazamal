@@ -210,7 +210,7 @@ class BazarFlowTest extends TestCase
         Storage::disk('local')->assertExists($order->payment_proof);
         Storage::disk('public')->assertMissing($order->payment_proof);
 
-        $this->get(route('admin.orders.proof', $order))->assertRedirect(route('login'));
+        $this->get(route('admin.orders.proof', $order))->assertNotFound();
 
         $admin = User::where('email', 'admin@bazar.test')->firstOrFail();
         $this->actingAs($admin)

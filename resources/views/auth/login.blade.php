@@ -16,13 +16,6 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-stone-300 text-brand-600 shadow-sm focus:ring-brand-500" name="remember">
-                <span class="ms-2 text-sm text-stone-600">Ingat saya</span>
-            </label>
-        </div>
-
         <div class="flex items-center justify-between mt-6">
             <a href="{{ route('home') }}" class="text-sm font-semibold text-brand-700">← Toko</a>
             <button type="submit" class="rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold px-5 py-2.5 text-sm">

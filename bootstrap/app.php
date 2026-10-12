@@ -16,6 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'inti' => \App\Http\Middleware\EnsureIntiAdmin::class,
         ]);
 
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('admin', 'admin/*', 'dashboard', 'profile', 'profile/*')) {
+                abort(404);
+            }
+
+            return route('login');
+        });
+
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
         $proxies = env('TRUSTED_PROXIES');

@@ -6,4 +6,6 @@ return [
     'menu_order_deadline' => '2026-11-30',
     // Ubah menjadi true jika Tunai (Cash/COD) perlu ditawarkan lagi di checkout.
     'cash_payment_enabled' => false,
+    // Alamat halaman masuk panitia. Jangan memakai kata login.
+    'login_path' => 'yasm-gerbang',
 ];

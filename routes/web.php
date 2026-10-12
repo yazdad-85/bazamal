@@ -39,6 +39,8 @@ Route::get('/bazar', [ProductController::class, 'index'])->name('products.index'
 Route::get('/produk/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 
 Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
+Route::get('/keranjang/konfirmasi', [CartController::class, 'confirm'])->name('cart.confirm');
+Route::post('/keranjang/lanjutkan', [CartController::class, 'proceed'])->name('cart.proceed');
 Route::post('/keranjang', [CartController::class, 'store'])->name('cart.store');
 Route::patch('/keranjang', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/keranjang', [CartController::class, 'destroy'])->name('cart.destroy');

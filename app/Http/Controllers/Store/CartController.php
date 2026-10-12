@@ -38,12 +38,35 @@ class CartController extends Controller
         }
 
         $cart->add($product, $data['qty'] ?? 1);
+        $request->session()->forget('cart_confirmed');
 
-        if ($request->boolean('buy_now')) {
-            return redirect()->route('checkout.show');
+        return redirect()
+            ->route('cart.confirm')
+            ->with('success', $product->name.' masuk ke pesanan. Periksa dulu sebelum membayar.');
+    }
+
+    public function confirm(CartService $cart): View|RedirectResponse
+    {
+        if ($cart->isEmpty()) {
+            return redirect()->route('home')->with('error', 'Keranjang masih kosong.');
         }
 
-        return back()->with('success', 'Produk ditambahkan ke keranjang.');
+        return view('store.cart.confirm', [
+            'items' => $cart->items(),
+            'subtotal' => $cart->subtotal(),
+            'cartCount' => $cart->count(),
+        ]);
+    }
+
+    public function proceed(Request $request, CartService $cart): RedirectResponse
+    {
+        if ($cart->isEmpty()) {
+            return redirect()->route('home')->with('error', 'Keranjang masih kosong.');
+        }
+
+        $request->session()->put('cart_confirmed', true);
+
+        return redirect()->route('checkout.show');
     }
 
     public function update(Request $request, CartService $cart): RedirectResponse
@@ -54,6 +77,7 @@ class CartController extends Controller
         ]);
 
         $cart->update((int) $data['product_id'], (int) $data['qty']);
+        $request->session()->forget('cart_confirmed');
 
         return back()->with('success', 'Keranjang diperbarui.');
     }
@@ -65,6 +89,7 @@ class CartController extends Controller
         ]);
 
         $cart->remove((int) $data['product_id']);
+        $request->session()->forget('cart_confirmed');
 
         return back()->with('success', 'Item dihapus dari keranjang.');
     }

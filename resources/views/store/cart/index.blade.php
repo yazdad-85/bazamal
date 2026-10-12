@@ -53,9 +53,14 @@
                     <span>Subtotal</span>
                     <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                 </div>
-                <a href="{{ route('cart.confirm') }}"
+                <p class="text-xs text-stone-500 mb-4">Periksa menu di keranjang. Kalau sudah benar, lanjutkan pembayaran.</p>
+                <a href="{{ route('checkout.show') }}"
                    class="block text-center rounded-xl bg-accent-600 hover:bg-accent-500 text-white font-bold py-3">
-                    Periksa pesanan
+                    Lanjutkan pembayaran
+                </a>
+                <a href="{{ route('home') }}"
+                   class="mt-3 block text-center rounded-xl border border-stone-200 bg-white font-bold py-3 text-brand-800">
+                    Tambah menu
                 </a>
             </div>
         @endif

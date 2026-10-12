@@ -265,7 +265,7 @@ class BazarFlowTest extends TestCase
 
         $this->travelTo(Carbon::parse('2026-11-30 21:00:00', 'Asia/Jakarta'));
         $this->post(route('cart.store'), ['product_id' => $menu->id, 'qty' => 1])
-            ->assertRedirect(route('cart.confirm'))
+            ->assertRedirect()
             ->assertSessionHas('success');
 
         $this->travelTo(Carbon::parse('2026-12-01 00:05:00', 'Asia/Jakarta'));
@@ -274,31 +274,25 @@ class BazarFlowTest extends TestCase
             ->assertSessionHas('error');
 
         $this->post(route('cart.store'), ['product_id' => $infak->id, 'qty' => 1])
-            ->assertRedirect(route('cart.confirm'))
+            ->assertRedirect()
             ->assertSessionHas('success');
     }
 
-    public function test_adding_a_product_asks_for_confirmation_before_checkout(): void
+    public function test_cart_is_the_place_to_review_and_add_another_menu(): void
     {
         $this->seed();
 
         $product = Product::where('slug', 'kaos-kebaikan')->firstOrFail();
 
-        $this->post(route('cart.store'), ['product_id' => $product->id, 'qty' => 2, 'buy_now' => 1])
-            ->assertRedirect(route('cart.confirm'));
+        $this->post(route('cart.store'), ['product_id' => $product->id, 'qty' => 2])
+            ->assertRedirect()
+            ->assertSessionHas('success');
 
-        $this->get(route('checkout.show'))
-            ->assertRedirect(route('cart.confirm'));
-
-        $this->get(route('cart.confirm'))
+        $this->get(route('cart.index'))
             ->assertOk()
-            ->assertSee('Yakin memesan ini?')
             ->assertSee($product->name)
             ->assertSee('Lanjutkan pembayaran')
-            ->assertSee('Kembali pilih menu');
-
-        $this->post(route('cart.proceed'))
-            ->assertRedirect(route('checkout.show'));
+            ->assertSee('Tambah menu');
 
         $this->get(route('checkout.show'))
             ->assertOk()

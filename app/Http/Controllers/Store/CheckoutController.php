@@ -9,19 +9,14 @@ use App\Services\CartService;
 use App\Services\OrderHistoryService;
 use App\Services\WhatsAppLinkService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
 {
-    public function show(Request $request, CartService $cart): View|RedirectResponse
+    public function show(CartService $cart): View|RedirectResponse
     {
         if ($cart->isEmpty()) {
             return redirect()->route('home')->with('error', 'Keranjang masih kosong.');
-        }
-
-        if (! $request->session()->get('cart_confirmed')) {
-            return redirect()->route('cart.confirm');
         }
 
         return view('store.checkout.show', [

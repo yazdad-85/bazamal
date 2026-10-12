@@ -10,7 +10,13 @@
 
         <div class="mt-5 space-y-3">
             @foreach ($items as $item)
-                <div class="rounded-2xl border border-stone-100 p-3 flex gap-3">
+                @php
+                    $photo = ! empty($item['image'])
+                        ? asset('storage/'.$item['image'])
+                        : 'https://placehold.co/160x160/e8f5e9/1b5e20?text='.urlencode($item['name']);
+                @endphp
+                <div class="rounded-2xl border border-stone-100 p-3 flex items-center gap-3">
+                    <img src="{{ $photo }}" alt="{{ $item['name'] }}" class="w-20 h-20 rounded-xl object-cover bg-stone-100 shrink-0">
                     <div class="flex-1 min-w-0">
                         <p class="font-semibold text-sm">{{ $item['name'] }}</p>
                         <p class="text-stone-500 text-xs mt-0.5">{{ $item['qty'] }} × Rp {{ number_format($item['price'], 0, ',', '.') }}</p>

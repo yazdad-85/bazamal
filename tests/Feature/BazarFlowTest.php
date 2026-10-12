@@ -302,7 +302,8 @@ class BazarFlowTest extends TestCase
 
         $this->get(route('checkout.show'))
             ->assertOk()
-            ->assertSee('Metode Pembayaran');
+            ->assertSee('Metode Pembayaran')
+            ->assertSee('alt="'.$product->name.'"', false);
     }
 
     public function test_admin_can_access_dashboard_and_export(): void

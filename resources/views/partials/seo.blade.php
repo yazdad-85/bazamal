@@ -10,7 +10,7 @@
         try {
             $description = \App\Models\Setting::metaDescription();
         } catch (\Throwable) {
-            $description = 'Toko bazar amal untuk siswa dan masyarakat. Setiap pembelian mendukung kegiatan amal pendidikan.';
+            $description = 'Nikmati berbagai pilihan makanan lezat di Bazar Amal YASMU. Setiap pembelian Anda mendanai pembangunan dan fasilitas belajar siswa.';
         }
     }
     $description = \Illuminate\Support\Str::limit($description, 180, '');

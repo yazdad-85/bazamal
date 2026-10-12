@@ -20,7 +20,8 @@ class SeoTest extends TestCase
             ->assertOk()
             ->assertSee('<meta name="description"', false)
             ->assertSee('name="robots" content="index, follow"', false)
-            ->assertSee('Toko Amal untuk Siswa dan Masyarakat', false)
+            ->assertSee('Bazar Kuliner Amal YASMU | Belanja Sambil Beramal', false)
+            ->assertSee('Nikmati berbagai pilihan makanan lezat di Bazar Amal YASMU.', false)
             ->assertSee('application/ld+json', false);
 
         $this->get('/bazar?bazar=infak')

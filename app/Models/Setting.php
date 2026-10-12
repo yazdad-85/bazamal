@@ -59,9 +59,7 @@ class Setting extends Model
             return $custom;
         }
 
-        $name = static::siteName();
-
-        return "Belanja di {$name}, toko amal untuk siswa MTs, SMP, MA, SMA, SMK, dan masyarakat. Setiap pembelian mendukung kegiatan amal pendidikan.";
+        return 'Nikmati berbagai pilihan makanan lezat di Bazar Amal YASMU. Setiap pembelian Anda mendanai pembangunan dan fasilitas belajar siswa.';
     }
 
     public static function siteLogoUrl(): ?string

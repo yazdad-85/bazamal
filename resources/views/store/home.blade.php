@@ -1,6 +1,6 @@
 @extends('layouts.store')
 
-@section('seo_title', ($siteName ?? 'Bazar Amal').' — Toko Amal untuk Siswa dan Masyarakat')
+@section('seo_title', 'Bazar Kuliner Amal YASMU | Belanja Sambil Beramal')
 @section('canonical', route('home'))
 
 @push('head')

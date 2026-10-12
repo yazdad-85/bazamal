@@ -57,6 +57,7 @@ class OrderTable extends Component
         }
 
         $order->update(['status' => $status]);
+        $this->dispatch('incoming-orders-changed');
     }
 
     public function render()

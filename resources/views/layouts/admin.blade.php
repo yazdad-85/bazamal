@@ -40,8 +40,11 @@
                 @endphp
                 @foreach ($links as $link)
                     <a href="{{ route($link['route']) }}"
-                       class="block rounded-lg px-3 py-2.5 text-sm font-semibold transition {{ request()->routeIs($link['match']) ? 'bg-white/15 text-white' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
-                        {{ $link['label'] }}
+                       class="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition {{ request()->routeIs($link['match']) ? 'bg-white/15 text-white' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
+                        <span>{{ $link['label'] }}</span>
+                        @if ($link['route'] === 'admin.orders.index')
+                            <livewire:admin.incoming-order-badge />
+                        @endif
                     </a>
                 @endforeach
                 <a href="{{ route('home') }}" class="block rounded-lg px-3 py-2.5 text-sm text-white/60 hover:bg-white/10">Lihat Toko</a>

@@ -56,7 +56,12 @@
                                     default => 'bg-stone-100 text-stone-600',
                                 };
                             @endphp
-                            <span class="inline-flex text-[11px] font-bold px-2 py-1 rounded-full {{ $badge }}">{{ $order->status_label }}</span>
+                            <span class="inline-flex items-center gap-1">
+                                @if ($order->status === 'menunggu_verifikasi')
+                                    <span class="inline-flex text-[11px] font-bold px-2 py-1 rounded-full bg-orange-100 text-accent-700">Baru</span>
+                                @endif
+                                <span class="inline-flex text-[11px] font-bold px-2 py-1 rounded-full {{ $badge }}">{{ $order->status_label }}</span>
+                            </span>
                         </td>
                         <td class="px-4 py-3">
                             <select wire:change="updateStatus({{ $order->id }}, $event.target.value)"

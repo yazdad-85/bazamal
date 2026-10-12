@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Admin\OrderTable;
 use App\Livewire\CheckoutForm;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -384,6 +385,41 @@ class BazarFlowTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin/reports/export')
             ->assertOk();
+    }
+
+    public function test_incoming_order_badge_disappears_when_the_order_is_processed(): void
+    {
+        $this->seed();
+        $admin = User::where('email', 'admin@bazar.test')->firstOrFail();
+        $order = Order::create([
+            'order_code' => 'BA-BADGE-1',
+            'buyer_type' => 'umum',
+            'full_name' => 'Pembeli Baru',
+            'phone' => '081234567890',
+            'pickup_method' => 'kirim_alamat',
+            'delivery_address' => 'Jl. Melati No. 8',
+            'payment_method' => 'online',
+            'subtotal' => 10000,
+            'status' => 'menunggu_verifikasi',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.orders.index'))
+            ->assertOk()
+            ->assertSee('1 pesanan masuk', false)
+            ->assertSee('Baru');
+
+        Livewire::actingAs($admin)
+            ->test(OrderTable::class)
+            ->call('updateStatus', $order->id, 'diproses');
+
+        $this->assertSame('diproses', $order->fresh()->status);
+
+        $this->actingAs($admin)
+            ->get(route('admin.orders.index'))
+            ->assertOk()
+            ->assertDontSee('pesanan masuk', false)
+            ->assertDontSee('>Baru<', false);
     }
 
     public function test_admin_can_update_settings(): void

@@ -55,7 +55,7 @@
                 <div class="pt-2 text-center">
                     <p class="text-sm font-bold text-brand-800 mb-2">QRIS pembayaran</p>
                     <img src="{{ $qrisUrl }}" alt="QRIS panitia" class="mx-auto max-h-64 rounded-xl border bg-white p-2">
-                    <p class="text-xs text-stone-400 mt-2">Bayar sebesar {{ $order->formatted_subtotal }} jika belum dibayar. Panitia mencocokkan pembayaran secara manual.</p>
+                    <p class="text-xs text-stone-400 mt-2">Bukti pembayaran sudah terkirim. Panitia mencocokkan nominal {{ $order->formatted_subtotal }}.</p>
                 </div>
             @endif
             <p><span class="text-stone-500">Waktu:</span> {{ $order->created_at->format('d M Y H:i') }}</p>

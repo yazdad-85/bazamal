@@ -105,6 +105,7 @@ class BazarFlowTest extends TestCase
             ->set('phone', '081111111111')
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('payment_method', 'online')
+            ->set('payment_proof', UploadedFile::fake()->image('qris.jpg'))
             ->call('submit')
             ->assertRedirect();
 
@@ -137,6 +138,7 @@ class BazarFlowTest extends TestCase
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('payment_method', 'online')
+            ->set('payment_proof', UploadedFile::fake()->image('qris.jpg'))
             ->call('submit')
             ->assertRedirect();
 
@@ -180,6 +182,7 @@ class BazarFlowTest extends TestCase
             ->set('phone', '081222222222')
             ->set('delivery_address', 'Jl. Melati No. 8, RT 02/RW 03, Kelurahan Sumber')
             ->set('payment_method', 'online')
+            ->set('payment_proof', UploadedFile::fake()->image('qris.jpg'))
             ->call('submit')
             ->assertRedirect();
 
@@ -206,6 +209,7 @@ class BazarFlowTest extends TestCase
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('payment_method', 'online')
+            ->set('payment_proof', UploadedFile::fake()->image('qris.jpg'))
             ->call('submit')
             ->assertRedirect();
 
@@ -254,6 +258,42 @@ class BazarFlowTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.orders.proof', $order))
             ->assertOk();
+    }
+
+    public function test_qris_checkout_requires_a_payment_proof(): void
+    {
+        $this->seed();
+        Storage::fake('local');
+        Storage::fake('public');
+
+        $product = Product::where('slug', 'kaos-kebaikan')->firstOrFail();
+        app(CartService::class)->add($product, 1);
+
+        Livewire::test(CheckoutForm::class)
+            ->assertSee('Bukti pembayaran berhasil')
+            ->set('full_name', 'Pembeli QRIS')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('payment_method', 'online')
+            ->call('submit')
+            ->assertHasErrors(['payment_proof']);
+
+        $this->assertSame(0, Order::count());
+
+        Livewire::test(CheckoutForm::class)
+            ->set('full_name', 'Pembeli QRIS')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('payment_method', 'online')
+            ->set('payment_proof', UploadedFile::fake()->image('qris-berhasil.jpg'))
+            ->call('submit')
+            ->assertRedirect();
+
+        $order = Order::latest('id')->firstOrFail();
+        $this->assertSame('online', $order->payment_method);
+        $this->assertSame('menunggu_verifikasi', $order->status);
+        Storage::disk('local')->assertExists($order->payment_proof);
+        Storage::disk('public')->assertMissing($order->payment_proof);
     }
 
     public function test_menu_orders_close_on_1_december_while_infak_stays_open(): void

@@ -55,7 +55,7 @@
                     </div>
                 @endif
                 <input type="file" name="qris_image" accept="image/*" class="block w-full text-sm">
-                <p class="text-xs text-stone-400 mt-1">PNG/JPG QRIS statis panitia, maks. 2 MB. Tampil saat pembeli memilih bayar QRIS. Panitia mencocokkan pembayaran secara manual.</p>
+                <p class="text-xs text-stone-400 mt-1">PNG/JPG QRIS statis panitia, maks. 2 MB. Pembeli wajib mengunggah bukti pembayaran berhasil agar panitia bisa mencocokkan.</p>
                 @error('qris_image') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
             </div>
 

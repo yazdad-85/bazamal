@@ -43,16 +43,23 @@
                 @if ($qrisUrl)
                     <p class="text-sm font-semibold text-brand-800">Scan QRIS untuk membayar</p>
                     <img src="{{ $qrisUrl }}" alt="QRIS panitia" class="mx-auto mt-3 max-h-64 rounded-xl border bg-white p-2">
-                    <p class="text-xs text-stone-500 mt-2">Nominal sesuai total pesanan. Setelah bayar, selesaikan pesanan. Status masuk <strong>Menunggu Verifikasi</strong> sampai panitia mencocokkan pembayaran di aplikasi QRIS.</p>
+                    <p class="text-xs text-stone-500 mt-2">Bayar sesuai total pesanan, lalu unggah tangkapan layar pembayaran berhasil.</p>
                 @else
-                    <p class="text-xs text-stone-500">Gambar QRIS belum diunggah di pengaturan panitia. Pesanan tetap bisa disimpan dan masuk status <strong>Menunggu Verifikasi</strong>.</p>
+                    <p class="text-xs text-stone-500">Gambar QRIS belum diunggah di pengaturan panitia. Unggah bukti pembayaran tetap wajib.</p>
                 @endif
             </div>
         @endif
 
         @if ($payment_method === 'transfer')
-            <div class="mt-3 space-y-2 rounded-xl bg-stone-50 p-3">
+            <div class="mt-3 rounded-xl bg-stone-50 p-3">
                 <p class="text-sm font-semibold">Transfer ke: {{ $bankInfo }}</p>
+            </div>
+        @endif
+
+        @if (in_array($payment_method, ['online', 'transfer'], true))
+            <div class="mt-3 space-y-2 rounded-xl bg-stone-50 p-3 text-left">
+                <label class="block text-sm font-semibold">Bukti pembayaran berhasil</label>
+                <p class="text-xs text-stone-500">Wajib. Panitia memakai gambar ini untuk mencocokkan pembayaran.</p>
                 <input type="file" wire:model="payment_proof" accept="image/*" class="block w-full text-sm">
                 @error('payment_proof') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
                 <div wire:loading wire:target="payment_proof" class="text-xs text-brand-600">Mengunggah...</div>

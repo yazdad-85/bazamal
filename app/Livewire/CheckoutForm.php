@@ -61,7 +61,7 @@ class CheckoutForm extends Component
             'payment_method' => ['required', Rule::in(array_keys(Order::checkoutPaymentMethods()))],
         ];
 
-        if ($this->payment_method === 'transfer') {
+        if (in_array($this->payment_method, ['online', 'transfer'], true)) {
             $rules['payment_proof'] = ['required', 'image', 'max:2048'];
         }
 
@@ -95,7 +95,7 @@ class CheckoutForm extends Component
                     : 'menunggu_verifikasi';
 
                 $proofPath = null;
-                if ($this->payment_method === 'transfer' && $this->payment_proof) {
+                if (in_array($this->payment_method, ['online', 'transfer'], true) && $this->payment_proof) {
                     $proofPath = $this->payment_proof->store('payment-proofs', 'local');
                 }
 

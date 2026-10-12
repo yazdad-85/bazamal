@@ -30,7 +30,7 @@
             <div class="mt-4 rounded-2xl border border-stone-100 p-4 text-center">
                 <p class="text-sm font-bold text-brand-800">Scan QRIS untuk membayar</p>
                 <img src="{{ $qrisUrl }}" alt="QRIS panitia" class="mx-auto mt-3 max-h-64 rounded-xl border bg-white p-2">
-                <p class="text-xs text-stone-500 mt-2">Bayar sebesar {{ $order->formatted_subtotal }}. Cantumkan kode pesanan di catatan transfer jika aplikasi bank menyediakan kolom itu. Panitia akan mencocokkan pembayaran.</p>
+                <p class="text-xs text-stone-500 mt-2">Bukti pembayaran sudah terkirim. Panitia akan mencocokkan nominal {{ $order->formatted_subtotal }}.</p>
             </div>
         @endif
 

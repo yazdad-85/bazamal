@@ -43,6 +43,11 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function buyerCanChangeMenu(): bool
+    {
+        return $this->status === 'menunggu_verifikasi';
+    }
+
     public function scopeInstitutionFilter(Builder $query, ?string $filter): Builder
     {
         if (! $filter || $filter === 'semua') {

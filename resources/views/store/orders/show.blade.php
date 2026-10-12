@@ -38,7 +38,7 @@
             </div>
         @else
             <div class="rounded-xl bg-red-50 text-red-700 text-sm px-4 py-3 border border-red-100">
-                Pesanan ini dibatalkan. Hubungi panitia jika ada pertanyaan.
+                Pesanan ini dibatalkan. Stok sudah dikembalikan. Anda bisa memesan menu yang benar.
             </div>
         @endif
 
@@ -79,6 +79,8 @@
                 <span>{{ $order->formatted_subtotal }}</span>
             </div>
         </div>
+
+        @include('store.orders.partials.change-menu')
 
         <div class="space-y-2">
             @foreach ($whatsappLinks as $link)

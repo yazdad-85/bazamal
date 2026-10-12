@@ -55,6 +55,9 @@ Route::post('/pesanan/lacak', [OrderTrackingController::class, 'lookup'])
 Route::get('/pesanan/{orderCode}', [OrderTrackingController::class, 'show'])
     ->middleware('throttle:60,1')
     ->name('orders.show');
+Route::post('/pesanan/{orderCode}/batal', [OrderTrackingController::class, 'cancel'])
+    ->middleware('throttle:10,1')
+    ->name('orders.cancel');
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');

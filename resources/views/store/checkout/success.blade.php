@@ -46,6 +46,10 @@
             </ul>
         </div>
 
+        <div class="mt-4">
+            @include('store.orders.partials.change-menu')
+        </div>
+
         <a href="{{ route('orders.show', ['orderCode' => $order->order_code]) }}"
            class="mt-6 inline-flex w-full justify-center rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold py-3.5">
             Pantau Status Pesanan

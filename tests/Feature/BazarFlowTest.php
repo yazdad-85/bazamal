@@ -120,7 +120,45 @@ class BazarFlowTest extends TestCase
         $this->get(route('orders.show', ['orderCode' => $order->order_code]))
             ->assertOk()
             ->assertSee($product->name)
-            ->assertSee('Menunggu Verifikasi');
+            ->assertSee('Menunggu Verifikasi')
+            ->assertSee('Batalkan dan ganti menu');
+    }
+
+    public function test_buyer_can_cancel_an_unverified_order_and_stock_returns(): void
+    {
+        $this->seed();
+
+        $product = Product::where('slug', 'kaos-kebaikan')->firstOrFail();
+        $stockBefore = $product->stock;
+        app(CartService::class)->add($product, 1);
+
+        Livewire::test(CheckoutForm::class)
+            ->set('full_name', 'Salah Klik')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('payment_method', 'online')
+            ->call('submit')
+            ->assertRedirect();
+
+        $order = Order::latest('id')->firstOrFail();
+        $this->assertSame($stockBefore - 1, $product->fresh()->stock);
+
+        $this->get(route('checkout.success', ['orderCode' => $order->order_code]))
+            ->assertOk()
+            ->assertSee('Batalkan dan ganti menu');
+
+        $this->post(route('orders.cancel', ['orderCode' => $order->order_code]))
+            ->assertRedirect(route('products.index', ['bazar' => 'menu']))
+            ->assertSessionHas('success');
+
+        $this->assertSame('batal', $order->fresh()->status);
+        $this->assertSame($stockBefore, $product->fresh()->stock);
+
+        $order->update(['status' => 'diproses']);
+        $this->post(route('orders.cancel', ['orderCode' => $order->order_code]))
+            ->assertRedirect(route('orders.show', ['orderCode' => $order->order_code]))
+            ->assertSessionHas('error');
+        $this->assertSame('diproses', $order->fresh()->status);
     }
 
     public function test_home_delivery_is_only_for_bazar_besar_and_has_no_shipping_fee(): void

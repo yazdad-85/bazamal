@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\Setting;
 use App\Services\CartService;
 use App\Services\OrderHistoryService;
 use App\Services\WhatsAppLinkService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class OrderTrackingController extends Controller
@@ -76,5 +78,46 @@ class OrderTrackingController extends Controller
                 'selesai' => 'Selesai',
             ],
         ]);
+    }
+
+    public function cancel(string $orderCode, OrderHistoryService $history): RedirectResponse
+    {
+        $order = Order::query()->where('order_code', $orderCode)->first();
+
+        if (! $order || ! $history->canAccess($order->order_code)) {
+            return redirect()
+                ->route('orders.index')
+                ->with('error', 'Pesanan hanya bisa dibuka di perangkat yang memesan, atau dengan kode pesanan dan nama lengkap.');
+        }
+
+        $cancelled = DB::transaction(function () use ($order) {
+            $locked = Order::query()->whereKey($order->id)->lockForUpdate()->first();
+
+            if (! $locked || ! $locked->buyerCanChangeMenu()) {
+                return false;
+            }
+
+            foreach ($locked->items()->get() as $item) {
+                if (! $item->product_id) {
+                    continue;
+                }
+
+                Product::query()->whereKey($item->product_id)->lockForUpdate()->increment('stock', $item->qty);
+            }
+
+            $locked->update(['status' => 'batal']);
+
+            return true;
+        });
+
+        if (! $cancelled) {
+            return redirect()
+                ->route('orders.show', ['orderCode' => $order->order_code])
+                ->with('error', 'Pesanan sudah diproses panitia, jadi menu tidak bisa diganti dari halaman ini.');
+        }
+
+        return redirect()
+            ->route('products.index', ['bazar' => 'menu'])
+            ->with('success', 'Pesanan dibatalkan dan stok dikembalikan. Silakan pilih menu yang benar.');
     }
 }

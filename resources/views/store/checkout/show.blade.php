@@ -15,9 +15,11 @@
                         : 'https://placehold.co/160x160/e8f5e9/1b5e20?text='.urlencode($item['name']);
                 @endphp
                 <div class="flex items-center gap-3">
-                    <img src="{{ $photo }}" alt="{{ $item['name'] }}" class="w-20 h-20 rounded-xl object-cover bg-stone-100 shrink-0">
+                    <div class="w-16 h-16 rounded-xl bg-stone-100 overflow-hidden shrink-0" style="width:4rem;height:4rem;flex:0 0 4rem">
+                        <img src="{{ $photo }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover" style="width:100%;height:100%;object-fit:cover">
+                    </div>
                     <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-sm text-stone-800">{{ $item['name'] }}</p>
+                        <p class="font-semibold text-sm text-stone-800 truncate">{{ $item['name'] }}</p>
                         <p class="text-xs text-stone-500 mt-0.5">{{ $item['qty'] }} × Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
                     </div>
                     <span class="font-semibold text-sm whitespace-nowrap">Rp {{ number_format($item['price'] * $item['qty'], 0, ',', '.') }}</span>

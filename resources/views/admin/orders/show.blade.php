@@ -15,10 +15,8 @@
                     <span class="text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-800">{{ $order->status_label }}</span>
                 </div>
                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                    <div><dt class="text-stone-400">Tipe</dt><dd class="font-semibold">{{ $order->buyer_type }} {{ $order->institution ? '· '.$order->institution : '' }}</dd></div>
-                    <div><dt class="text-stone-400">Kelas</dt><dd class="font-semibold">{{ $order->class_name ?: '-' }}</dd></div>
                     <div><dt class="text-stone-400">HP</dt><dd class="font-semibold">{{ $order->phone ?: '-' }}</dd></div>
-                    <div><dt class="text-stone-400">Ambil</dt><dd class="font-semibold">{{ $order->pickup_method_label }}</dd></div>
+                    <div><dt class="text-stone-400">Pengiriman</dt><dd class="font-semibold">{{ $order->pickup_method_label }}</dd></div>
                     @if ($order->delivery_address)
                         <div class="sm:col-span-2"><dt class="text-stone-400">Alamat</dt><dd class="font-semibold">{{ $order->delivery_address }}</dd><dd class="text-xs text-stone-400">Tanpa ongkir. Diantar tim panitia.</dd></div>
                     @endif

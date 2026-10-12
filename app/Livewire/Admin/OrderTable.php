@@ -3,15 +3,12 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Order;
-use App\Support\Institutions;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class OrderTable extends Component
 {
     use WithPagination;
-
-    public string $institution = 'semua';
 
     public string $bazar = 'semua';
 
@@ -20,18 +17,12 @@ class OrderTable extends Component
     public string $search = '';
 
     protected $queryString = [
-        'institution' => ['except' => 'semua'],
         'bazar' => ['except' => 'semua'],
         'status' => ['except' => 'semua'],
         'search' => ['except' => ''],
     ];
 
     public function updatingSearch(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatingInstitution(): void
     {
         $this->resetPage();
     }
@@ -44,23 +35,6 @@ class OrderTable extends Component
     public function updatingStatus(): void
     {
         $this->resetPage();
-    }
-
-    public function setInstitution(string $value): void
-    {
-        if (auth()->user()?->isKoordinator()) {
-            return;
-        }
-
-        $this->institution = $value;
-        $this->resetPage();
-    }
-
-    public function mount(): void
-    {
-        if (auth()->user()?->isKoordinator()) {
-            $this->institution = (string) auth()->user()->institution;
-        }
     }
 
     public function boot(): void
@@ -88,14 +62,10 @@ class OrderTable extends Component
     public function render()
     {
         $user = auth()->user();
-        if ($user->isKoordinator()) {
-            $this->institution = (string) $user->institution;
-        }
 
         $query = Order::query()
             ->with('items')
             ->visibleTo($user)
-            ->institutionFilter($this->institution)
             ->latest();
 
         if ($this->status !== 'semua') {
@@ -117,9 +87,7 @@ class OrderTable extends Component
 
         return view('livewire.admin.order-table', [
             'orders' => $query->paginate(15),
-            'institutions' => Institutions::options(),
             'statuses' => Order::STATUSES,
-            'lockedInstitution' => $user->isKoordinator(),
         ]);
     }
 }

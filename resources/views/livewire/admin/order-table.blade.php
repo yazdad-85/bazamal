@@ -1,17 +1,4 @@
 <div wire:poll.10s class="space-y-4">
-    <div class="flex flex-wrap gap-2">
-        @if ($lockedInstitution)
-            <span class="px-3 py-1.5 rounded-full text-xs font-bold border bg-brand-700 text-white border-brand-700">{{ $institution }}</span>
-        @else
-        @foreach (array_merge(['semua' => 'Semua'], array_combine($institutions, $institutions), ['Umum' => 'Umum']) as $value => $label)
-            <button type="button" wire:click="setInstitution('{{ $value }}')"
-                    @class(['px-3 py-1.5 rounded-full text-xs font-bold border transition', $institution === $value ? 'bg-brand-700 text-white border-brand-700' : 'bg-white text-stone-600 border-stone-200 hover:border-brand-400'])>
-                {{ $label }}
-            </button>
-        @endforeach
-        @endif
-    </div>
-
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <input type="search" wire:model.live.debounce.300ms="search" placeholder="Cari kode / nama..."
                class="rounded-xl border-stone-200 text-sm">
@@ -49,13 +36,6 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="font-semibold">{{ $order->full_name }}</div>
-                            <span class="inline-flex mt-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full
-                                {{ $order->buyer_type === 'siswa' ? 'bg-orange-100 text-accent-700' : 'bg-stone-100 text-stone-600' }}">
-                                {{ $order->buyer_badge }}
-                            </span>
-                            @if($order->class_name)
-                                <div class="text-xs text-stone-500 mt-1">{{ $order->class_name }}</div>
-                            @endif
                         </td>
                         <td class="px-4 py-3 text-stone-600">
                             {{ $order->items->take(2)->pluck('product_name')->implode(', ') }}

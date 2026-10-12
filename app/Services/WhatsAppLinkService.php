@@ -29,37 +29,14 @@ class WhatsAppLinkService
      */
     public function linksForOrder(Order $order): array
     {
-        $links = [];
-        $primaryNumber = Setting::whatsappForOrder($order);
         $bendahara = Setting::bendaharaWhatsApp();
 
-        if ($order->buyer_type === 'siswa' && $order->institution) {
-            $lembagaNumber = Setting::institutionWhatsApp($order->institution);
-            $links[] = [
-                'label' => 'Kirim ke WA Panitia '.$order->institution,
-                'url' => $this->build($order, 'lembaga'),
-                'target' => 'lembaga',
-                'number' => $lembagaNumber,
-            ];
-
-            if ($bendahara !== '' && $bendahara !== $lembagaNumber) {
-                $links[] = [
-                    'label' => 'Kirim ke WA Bendahara Inti',
-                    'url' => $this->build($order, 'bendahara'),
-                    'target' => 'bendahara',
-                    'number' => $bendahara,
-                ];
-            }
-        } else {
-            $links[] = [
-                'label' => 'Kirim ke WA Bendahara Inti',
-                'url' => $this->build($order, 'bendahara'),
-                'target' => 'bendahara',
-                'number' => $primaryNumber ?: $bendahara,
-            ];
-        }
-
-        return $links;
+        return [[
+            'label' => 'Kirim ke WA Bendahara',
+            'url' => $this->build($order, 'bendahara'),
+            'target' => 'bendahara',
+            'number' => $bendahara,
+        ]];
     }
 
     public function message(Order $order): string
@@ -71,13 +48,7 @@ class WhatsAppLinkService
             '*PESANAN '.$site.'*',
             'Kode: '.$order->order_code,
             'Nama: '.$order->full_name,
-            'Tipe: '.($order->buyer_type === 'siswa' ? 'Siswa' : 'Umum'),
         ];
-
-        if ($order->buyer_type === 'siswa') {
-            $lines[] = 'Lembaga: '.$order->institution;
-            $lines[] = 'Kelas: '.$order->class_name;
-        }
 
         if ($order->phone) {
             $lines[] = 'HP: '.$order->phone;

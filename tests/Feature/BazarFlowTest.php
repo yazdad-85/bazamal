@@ -281,23 +281,18 @@ class BazarFlowTest extends TestCase
             ->get('/admin/settings')
             ->assertOk()
             ->assertSee('Bendahara Inti')
-            ->assertSee('Gambar QRIS');
+            ->assertSee('Gambar QRIS')
+            ->assertDontSee('WA Panitia');
 
         $this->actingAs($admin)
             ->put('/admin/settings', [
                 'site_name' => 'Bazar Amal Yayasan',
                 'bank_info' => 'BSI 111 a.n. Bendahara',
                 'wa_bendahara' => '6281111111111',
-                'wa_mts' => '6282222222222',
-                'wa_smp' => '',
-                'wa_ma' => '',
-                'wa_sma' => '6283333333333',
-                'wa_smk' => '',
             ])
             ->assertRedirect();
 
         $this->assertSame('Bazar Amal Yayasan', \App\Models\Setting::siteName());
-        $this->assertSame('6283333333333', \App\Models\Setting::institutionWhatsApp('SMA'));
         $this->assertSame('6281111111111', \App\Models\Setting::bendaharaWhatsApp());
     }
 }

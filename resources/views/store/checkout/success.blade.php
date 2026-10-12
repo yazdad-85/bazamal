@@ -18,10 +18,7 @@
         <div class="mt-6 space-y-3 text-left rounded-2xl border border-stone-100 p-4">
             <p class="text-sm"><span class="text-stone-500">Nama:</span> <strong>{{ $order->full_name }}</strong></p>
             <p class="text-sm"><span class="text-stone-500">HP:</span> {{ $order->phone ?: '-' }}</p>
-            <p class="text-sm"><span class="text-stone-500">Tipe:</span> {{ $order->buyer_type === 'siswa' ? 'Siswa' : 'Umum' }}
-                @if($order->institution) ({{ $order->institution }} {{ $order->class_name }}) @endif
-            </p>
-            <p class="text-sm"><span class="text-stone-500">Ambil:</span> {{ $order->pickup_method_label }}</p>
+            <p class="text-sm"><span class="text-stone-500">Pengiriman:</span> {{ $order->pickup_method_label }}</p>
             @if ($order->delivery_address)
                 <p class="text-sm"><span class="text-stone-500">Alamat:</span> {{ $order->delivery_address }}</p>
                 <p class="text-xs text-stone-400">Tanpa ongkir. Diantar tim panitia.</p>

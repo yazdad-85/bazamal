@@ -85,19 +85,7 @@
                 <input type="text" name="wa_bendahara" value="{{ old('wa_bendahara', $settings['wa_bendahara'] ?? '') }}" required
                        class="w-full rounded-xl border-stone-200" placeholder="62812...">
                 @error('wa_bendahara') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-                <p class="text-xs text-stone-500 mt-1">Dipakai untuk pembeli Umum, dan fallback jika nomor lembaga kosong.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                @foreach ($institutions as $lembaga)
-                    @php $key = 'wa_'.strtolower($lembaga); @endphp
-                    <div>
-                        <label class="block text-sm font-semibold mb-1">WA Panitia {{ $lembaga }}</label>
-                        <input type="text" name="{{ $key }}" value="{{ old($key, $settings[$key] ?? '') }}"
-                               class="w-full rounded-xl border-stone-200" placeholder="62812...">
-                        @error($key) <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-                    </div>
-                @endforeach
+                <p class="text-xs text-stone-500 mt-1">Semua pesanan dikirim ke nomor ini.</p>
             </div>
         </section>
 

@@ -30,7 +30,16 @@
 
         @if ($orders->isNotEmpty())
             <section>
-                <h2 class="font-bold text-brand-800 mb-3">Riwayat di perangkat ini</h2>
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <h2 class="font-bold text-brand-800">Riwayat di perangkat ini</h2>
+                    <form method="POST" action="{{ route('orders.device.destroy') }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-700">
+                            Hapus riwayat
+                        </button>
+                    </form>
+                </div>
                 <div class="space-y-3">
                     @foreach ($orders as $order)
                         <a href="{{ route('orders.show', ['orderCode' => $order->order_code]) }}"

@@ -7,9 +7,9 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Seo\SitemapController;
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\Store\CheckoutController;
-use App\Http\Controllers\Seo\SitemapController;
 use App\Http\Controllers\Store\HomeController;
 use App\Http\Controllers\Store\OrderTrackingController;
 use App\Http\Controllers\Store\ProductController;
@@ -58,6 +58,9 @@ Route::get('/pesanan/{orderCode}', [OrderTrackingController::class, 'show'])
 Route::post('/pesanan/{orderCode}/batal', [OrderTrackingController::class, 'cancel'])
     ->middleware('throttle:10,1')
     ->name('orders.cancel');
+Route::delete('/pesanan/perangkat/riwayat', [OrderTrackingController::class, 'forgetDevice'])
+    ->middleware('throttle:10,1')
+    ->name('orders.device.destroy');
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');

@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureIntiAdmin;
+use App\Http\Middleware\IdentifyDevice;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,7 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'inti' => \App\Http\Middleware\EnsureIntiAdmin::class,
+            'inti' => EnsureIntiAdmin::class,
+        ]);
+
+        $middleware->web(append: [
+            IdentifyDevice::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {
@@ -24,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             return route('login');
         });
 
-        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        $middleware->append(SecurityHeaders::class);
 
         $proxies = env('TRUSTED_PROXIES');
         if (is_string($proxies) && $proxies !== '') {

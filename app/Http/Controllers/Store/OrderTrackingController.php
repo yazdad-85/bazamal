@@ -120,4 +120,13 @@ class OrderTrackingController extends Controller
             ->route('products.index', ['bazar' => 'menu'])
             ->with('success', 'Pesanan dibatalkan dan stok dikembalikan. Silakan pilih menu yang benar.');
     }
+
+    public function forgetDevice(OrderHistoryService $history): RedirectResponse
+    {
+        $history->forgetDevice();
+
+        return redirect()
+            ->route('home')
+            ->with('success', 'Riwayat pesanan di perangkat ini sudah dihapus.');
+    }
 }

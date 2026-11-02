@@ -96,6 +96,16 @@ const notificationButton = document.getElementById('push-notification-button');
 const notificationToast = document.getElementById('push-notification-toast');
 const notificationToastTitle = document.getElementById('push-notification-toast-title');
 const notificationToastBody = document.getElementById('push-notification-toast-body');
+const orderNotificationPrompt = document.getElementById('push-order-prompt');
+const orderNotificationPromptDescription = document.getElementById('push-order-prompt-description');
+const orderNotificationPromptButton = document.getElementById('push-order-prompt-button');
+
+if (orderNotificationPrompt && isIos && !isStandalone) {
+    orderNotificationPromptDescription.textContent = 'Di iPhone, pasang aplikasi ini lebih dulu. Setelah itu buka Pesanan Saya di aplikasi, lacak dengan kode di atas, lalu aktifkan notifikasi.';
+    orderNotificationPromptButton.textContent = 'Lihat Cara Pasang';
+    orderNotificationPromptButton.addEventListener('click', showIosInstructions);
+    orderNotificationPrompt.removeAttribute('hidden');
+}
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 const firebaseConfig = firebaseConfigElement ? {
@@ -206,6 +216,7 @@ const initializeNotifications = async () => {
 
         window.localStorage.setItem('bazamal_push_enabled', 'true');
         setNotificationButtonState(true);
+        orderNotificationPrompt?.setAttribute('hidden', '');
 
         return true;
     };
@@ -228,6 +239,21 @@ const initializeNotifications = async () => {
         setNotificationButtonState(false);
     };
 
+    const enableNotificationsWithFeedback = async () => {
+        const isEnabled = await enableNotifications(true);
+
+        if (!isEnabled && !(isIos && !isStandalone)) {
+            showNotificationToast(
+                'Notifikasi belum aktif',
+                Notification.permission === 'denied'
+                    ? 'Izin notifikasi diblokir. Izinkan melalui pengaturan situs atau aplikasi.'
+                    : 'Izin notifikasi belum diberikan.',
+            );
+        }
+
+        return isEnabled;
+    };
+
     notificationButton?.removeAttribute('hidden');
     setNotificationButtonState(
         Notification.permission === 'granted'
@@ -241,16 +267,7 @@ const initializeNotifications = async () => {
             if (window.localStorage.getItem('bazamal_push_enabled') === 'true') {
                 await disableNotifications();
             } else {
-                const isEnabled = await enableNotifications(true);
-
-                if (!isEnabled && !(isIos && !isStandalone)) {
-                    showNotificationToast(
-                        'Notifikasi belum aktif',
-                        Notification.permission === 'denied'
-                            ? 'Izin notifikasi diblokir. Izinkan melalui pengaturan situs atau aplikasi.'
-                            : 'Izin notifikasi belum diberikan.',
-                    );
-                }
+                await enableNotificationsWithFeedback();
             }
         } catch (error) {
             console.error('Firebase notification update failed.', error);
@@ -259,6 +276,25 @@ const initializeNotifications = async () => {
             notificationButton.disabled = false;
         }
     });
+
+    if (orderNotificationPrompt && !(isIos && !isStandalone) && window.localStorage.getItem('bazamal_push_enabled') !== 'true') {
+        orderNotificationPrompt.removeAttribute('hidden');
+
+        orderNotificationPromptButton.addEventListener('click', async () => {
+            orderNotificationPromptButton.disabled = true;
+
+            try {
+                if (await enableNotificationsWithFeedback()) {
+                    showNotificationToast('Notifikasi aktif', 'Kami akan mengabari perubahan status pesanan Anda.');
+                }
+            } catch (error) {
+                console.error('Firebase notification update failed.', error);
+                showNotificationToast('Notifikasi gagal diaktifkan', 'Periksa koneksi internet, lalu coba lagi.');
+            } finally {
+                orderNotificationPromptButton.disabled = false;
+            }
+        });
+    }
 
     if (Notification.permission === 'granted' && window.localStorage.getItem('bazamal_push_enabled') === 'true') {
         enableNotifications(false).catch((error) => console.error('Firebase token refresh failed.', error));

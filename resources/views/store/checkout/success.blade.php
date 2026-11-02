@@ -15,6 +15,14 @@
             <p class="text-xs text-stone-500 mt-2">Status saat ini: <strong>{{ $order->status_label }}</strong> · {{ $order->formatted_subtotal }}</p>
         </div>
 
+        <div id="push-order-prompt" hidden class="mt-4 rounded-2xl border border-brand-100 p-4 text-left">
+            <p class="text-sm font-bold text-brand-800">Dapatkan kabar status pesanan</p>
+            <p id="push-order-prompt-description" class="mt-1 text-xs leading-5 text-stone-500">Kami akan memberi tahu perangkat ini setelah panitia memeriksa pembayaran dan setiap kali status pesanan berubah.</p>
+            <button id="push-order-prompt-button" type="button" class="mt-3 w-full rounded-xl bg-brand-700 py-3 text-sm font-bold text-white hover:bg-brand-600">
+                Aktifkan Notifikasi
+            </button>
+        </div>
+
         <div class="mt-6 space-y-3 text-left rounded-2xl border border-stone-100 p-4">
             <p class="text-sm"><span class="text-stone-500">Nama:</span> <strong>{{ $order->full_name }}</strong></p>
             <p class="text-sm"><span class="text-stone-500">HP:</span> {{ $order->phone ?: '-' }}</p>

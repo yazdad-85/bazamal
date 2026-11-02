@@ -79,6 +79,28 @@ class PushNotificationTest extends TestCase
         defer()->invoke();
     }
 
+    public function test_admin_status_update_notifies_the_buyer_device_with_a_link_to_the_order(): void
+    {
+        $sender = $this->fakeSender();
+        $buyerDevice = $this->createDevice('buyer-after-checkout');
+        $this->createSubscription($buyerDevice, 'buyer-after-checkout-token');
+        $order = $this->createOrder('BA-PUSH-VERIFIED');
+        $buyerDevice->orders()->attach($order);
+        $admin = User::factory()->create(['role' => User::ROLE_INTI]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.orders.status', $order), ['status' => 'diproses'])
+            ->assertRedirect();
+
+        defer()->invoke();
+
+        $notification = collect($sender->calls)->firstWhere('title', 'Status pesanan diperbarui');
+
+        $this->assertSame(['buyer-after-checkout-token'], $notification['tokens']);
+        $this->assertSame('BA-PUSH-VERIFIED sekarang Diproses.', $notification['body']);
+        $this->assertSame(route('orders.show', ['orderCode' => 'BA-PUSH-VERIFIED']), $notification['url']);
+    }
+
     private function fakeSender(array $invalidTokens = []): FakePushSender
     {
         $sender = new FakePushSender($invalidTokens);

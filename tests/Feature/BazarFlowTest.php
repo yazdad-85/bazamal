@@ -90,7 +90,8 @@ class BazarFlowTest extends TestCase
         $this->get(route('checkout.success', ['orderCode' => $order->order_code]))
             ->assertOk()
             ->assertSee($order->order_code)
-            ->assertSee('Pesanan Tersimpan');
+            ->assertSee('Pesanan Tersimpan')
+            ->assertSee('id="push-order-prompt"', false);
 
         $this->get(route('orders.show', ['orderCode' => $order->order_code]))
             ->assertOk()

@@ -34,5 +34,6 @@
                 {{ $slot }}
             </main>
         </div>
+        @include('partials.pwa-controls')
     </body>
 </html>

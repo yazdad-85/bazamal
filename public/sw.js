@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bazamal-static-v1';
+const CACHE_NAME = 'bazamal-static-v2';
 const PRECACHE_URLS = [
     '/offline.html',
     '/icons/icon-192.png',
@@ -56,4 +56,46 @@ self.addEventListener('fetch', (event) => {
             })),
         );
     }
+});
+
+self.addEventListener('push', (event) => {
+    let payload = {};
+
+    try {
+        payload = event.data?.json() || {};
+    } catch {
+        payload = { data: { body: event.data?.text() || '' } };
+    }
+
+    const notification = payload.notification || {};
+    const data = payload.data || {};
+    const title = notification.title || data.title || 'Bazar Amal';
+    const options = {
+        body: notification.body || data.body || '',
+        icon: notification.icon || '/icons/icon-192.png',
+        badge: '/icons/icon-192.png',
+        data: {
+            url: data.url || payload.fcmOptions?.link || '/',
+        },
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
+
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+            const matchingClient = clients.find((client) => client.url === targetUrl);
+
+            if (matchingClient) {
+                return matchingClient.focus();
+            }
+
+            return self.clients.openWindow(targetUrl);
+        }),
+    );
 });

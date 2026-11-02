@@ -15,7 +15,9 @@ class PwaTest extends TestCase
             ->assertOk()
             ->assertSee('rel="manifest"', false)
             ->assertSee('href="/manifest.webmanifest"', false)
-            ->assertSee('id="pwa-install-button"', false);
+            ->assertSee('id="pwa-install-button"', false)
+            ->assertSee('id="pwa-ios-instructions"', false)
+            ->assertSee('id="push-notification-button"', false);
     }
 
     public function test_manifest_contains_installable_app_metadata(): void
@@ -40,6 +42,10 @@ class PwaTest extends TestCase
         $this->assertStringContainsString(
             'Belum terhubung ke internet',
             file_get_contents(public_path('offline.html')),
+        );
+        $this->assertStringContainsString(
+            "self.addEventListener('push'",
+            file_get_contents(public_path('sw.js')),
         );
     }
 }

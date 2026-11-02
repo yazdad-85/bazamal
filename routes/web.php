@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\Seo\SitemapController;
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\Store\CheckoutController;
@@ -47,6 +48,13 @@ Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.sho
 Route::get('/checkout/sukses/{orderCode}', [CheckoutController::class, 'success'])
     ->middleware('throttle:60,1')
     ->name('checkout.success');
+
+Route::post('/notifikasi/perangkat', [PushSubscriptionController::class, 'store'])
+    ->middleware('throttle:20,1')
+    ->name('push-subscriptions.store');
+Route::delete('/notifikasi/perangkat', [PushSubscriptionController::class, 'destroy'])
+    ->middleware('throttle:20,1')
+    ->name('push-subscriptions.destroy');
 
 Route::get('/pesanan', [OrderTrackingController::class, 'index'])->name('orders.index');
 Route::post('/pesanan/lacak', [OrderTrackingController::class, 'lookup'])

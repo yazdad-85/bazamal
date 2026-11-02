@@ -75,6 +75,7 @@
             </main>
         </div>
     </div>
+    @include('partials.pwa-controls')
     @livewireScripts
 </body>
 </html>

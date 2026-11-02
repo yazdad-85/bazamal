@@ -79,18 +79,11 @@
             @yield('content')
         </main>
 
-        <footer class="border-t border-stone-100 px-4 py-4 text-center text-xs text-stone-500 space-y-2">
-            <button
-                id="pwa-install-button"
-                type="button"
-                hidden
-                class="mx-auto rounded-full bg-brand-700 px-4 py-2 font-bold text-white hover:bg-brand-600"
-            >
-                Pasang Aplikasi
-            </button>
+        <footer class="border-t border-stone-100 px-4 py-4 text-center text-xs text-stone-500">
             <p>{{ $siteName ?? 'Bazar Amal' }} Copyright {{ now()->year }}</p>
         </footer>
     </div>
+    @include('partials.pwa-controls')
     @livewireScripts
 </body>
 </html>

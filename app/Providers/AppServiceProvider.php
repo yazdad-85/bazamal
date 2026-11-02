@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Contracts\PushSender;
+use App\Models\Order;
 use App\Models\Setting;
+use App\Observers\OrderObserver;
 use App\Services\DeviceIdentity;
+use App\Services\FirebasePushSender;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -15,10 +19,13 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->scoped(DeviceIdentity::class);
+        $this->app->singleton(PushSender::class, FirebasePushSender::class);
     }
 
     public function boot(): void
     {
+        Order::observe(OrderObserver::class);
+
         Password::defaults(function () {
             $rule = Password::min(12)->mixedCase()->numbers();
 

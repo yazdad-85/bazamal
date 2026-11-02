@@ -33,8 +33,8 @@ class FirebasePushSender implements PushSender
                 ->withWebPushConfig([
                     'headers' => ['Urgency' => 'high'],
                     'notification' => [
-                        'icon' => url('/icons/icon-192.png'),
-                        'badge' => url('/icons/icon-192.png'),
+                        'icon' => url('/icons/icon-192.png?v=2'),
+                        'badge' => url('/icons/icon-192.png?v=2'),
                     ],
                     'fcm_options' => ['link' => $url],
                 ]);

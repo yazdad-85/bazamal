@@ -15,17 +15,23 @@
 </head>
 <body class="font-sans antialiased bg-stone-100 text-stone-900">
     <div class="min-h-screen lg:flex">
-        <aside class="bg-brand-800 text-white lg:w-64 lg:min-h-screen shrink-0">
-            <div class="px-5 py-5 border-b border-white/10">
-                <a href="{{ route('admin.dashboard') }}" class="font-display font-extrabold text-xl tracking-tight flex items-center gap-2">
-                    @if (!empty($siteLogoUrl))
-                        <img src="{{ $siteLogoUrl }}" alt="" class="h-9 w-9 rounded-lg object-contain bg-white/10">
-                    @endif
-                    <span class="truncate">{{ $siteName ?? 'Bazar Amal' }}</span>
-                </a>
-                <p class="text-xs text-white/60 mt-1">Panel Panitia</p>
+        <aside class="sticky top-0 z-30 bg-brand-800 text-white lg:static lg:w-64 lg:min-h-screen shrink-0">
+            <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/10 lg:block lg:px-5 lg:py-5">
+                <div class="min-w-0">
+                    <a href="{{ route('admin.dashboard') }}" class="font-display font-extrabold text-xl tracking-tight flex items-center gap-2">
+                        @if (!empty($siteLogoUrl))
+                            <img src="{{ $siteLogoUrl }}" alt="" class="h-9 w-9 rounded-lg object-contain bg-white/10">
+                        @endif
+                        <span class="truncate">{{ $siteName ?? 'Bazar Amal' }}</span>
+                    </a>
+                    <p class="text-xs text-white/60 mt-1">Panel Panitia</p>
+                </div>
+                <button id="admin-menu-button" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="admin-navigation" class="shrink-0 rounded-lg p-2 hover:bg-white/10 lg:hidden">
+                    <svg id="admin-menu-open-icon" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <svg id="admin-menu-close-icon" class="hidden h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-            <nav class="p-3 space-y-1">
+            <nav id="admin-navigation" class="hidden max-h-[calc(100vh-5rem)] overflow-y-auto p-3 space-y-1 lg:block lg:max-h-none lg:overflow-visible">
                 @php
                     $links = [
                         ['route' => 'admin.dashboard', 'label' => 'Dashboard', 'match' => 'admin.dashboard'],

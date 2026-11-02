@@ -8,6 +8,6 @@
     <link rel="shortcut icon" href="{{ $siteLogoUrl }}">
     <link rel="apple-touch-icon" href="{{ $siteLogoUrl }}">
 @else
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=2">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png?v=2">
 @endif

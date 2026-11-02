@@ -3,13 +3,18 @@
 namespace Tests\Feature;
 
 use App\Contracts\PushSender;
+use App\Livewire\CheckoutForm;
 use App\Models\Device;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\PushSubscription;
 use App\Models\User;
+use App\Services\CartService;
 use App\Services\DeviceIdentity;
 use App\Services\PushNotificationService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Log;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class PushNotificationTest extends TestCase
@@ -99,6 +104,62 @@ class PushNotificationTest extends TestCase
         $this->assertSame(['buyer-after-checkout-token'], $notification['tokens']);
         $this->assertSame('BA-PUSH-VERIFIED sekarang Diproses.', $notification['body']);
         $this->assertSame(route('orders.show', ['orderCode' => 'BA-PUSH-VERIFIED']), $notification['url']);
+    }
+
+    public function test_status_notification_skips_an_admin_device_linked_to_the_order(): void
+    {
+        $sender = $this->fakeSender();
+        $adminDevice = $this->createDevice('admin-with-order');
+        $buyerDevice = $this->createDevice('buyer-with-order');
+        $this->createSubscription($adminDevice, 'admin-token', User::factory()->create(['role' => User::ROLE_INTI]));
+        $this->createSubscription($buyerDevice, 'buyer-token');
+        $order = $this->createOrder('BA-PUSH-NO-ADMIN');
+        $adminDevice->orders()->attach($order);
+        $buyerDevice->orders()->attach($order);
+
+        $this->app->make(PushNotificationService::class)->notifyCustomerOfStatusChange($order->id);
+
+        $this->assertSame(['buyer-token'], $sender->calls[0]['tokens']);
+    }
+
+    public function test_checkout_notifies_the_registered_admin_device_after_the_response(): void
+    {
+        $sender = $this->fakeSender();
+        $admin = User::factory()->create(['role' => User::ROLE_INTI]);
+        $this->createSubscription($this->createDevice('admin-for-checkout'), 'admin-checkout-token', $admin);
+        $this->seed();
+        app(CartService::class)->add(Product::query()->where('slug', 'tote-bag-kanvas-amal')->firstOrFail(), 1);
+        config(['bazar.cash_payment_enabled' => true]);
+
+        Livewire::test(CheckoutForm::class)
+            ->set('full_name', 'Pembeli Baru')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
+            ->set('payment_method', 'tunai')
+            ->call('submit')
+            ->assertRedirect();
+
+        defer()->invoke();
+
+        $notification = collect($sender->calls)->firstWhere('title', 'Pesanan baru masuk');
+
+        $this->assertSame(['admin-checkout-token'], $notification['tokens']);
+        $this->assertSame(route('admin.orders.show', Order::query()->sole()), $notification['url']);
+    }
+
+    public function test_new_order_without_a_registered_admin_device_logs_a_warning(): void
+    {
+        $this->fakeSender();
+        Log::spy();
+        $order = $this->createOrder('BA-PUSH-NO-DEVICE');
+
+        $this->app->make(PushNotificationService::class)->notifyAdminsOfNewOrder($order->id);
+
+        Log::shouldHaveReceived('warning')->once()->with(
+            'New order notification skipped: no admin device is registered.',
+            ['order_code' => 'BA-PUSH-NO-DEVICE'],
+        );
     }
 
     private function fakeSender(array $invalidTokens = []): FakePushSender

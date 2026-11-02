@@ -26,8 +26,8 @@ class AdminManifestController extends Controller
             'theme_color' => '#145214',
             'lang' => 'id',
             'icons' => [
-                ['src' => '/icons/icon-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any maskable'],
-                ['src' => '/icons/icon-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any maskable'],
+                ['src' => '/icons/icon-192.png?v=2', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any maskable'],
+                ['src' => '/icons/icon-512.png?v=2', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any maskable'],
             ],
         ], headers: ['Content-Type' => 'application/manifest+json']);
     }

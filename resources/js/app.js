@@ -91,6 +91,18 @@ iosInstructions?.addEventListener('click', (event) => {
     }
 });
 
+const adminMenuButton = document.getElementById('admin-menu-button');
+const adminNavigation = document.getElementById('admin-navigation');
+
+adminMenuButton?.addEventListener('click', () => {
+    const isOpen = adminNavigation.classList.toggle('hidden') === false;
+
+    adminMenuButton.setAttribute('aria-expanded', String(isOpen));
+    adminMenuButton.setAttribute('aria-label', isOpen ? 'Tutup menu' : 'Buka menu');
+    document.getElementById('admin-menu-open-icon').classList.toggle('hidden', isOpen);
+    document.getElementById('admin-menu-close-icon').classList.toggle('hidden', !isOpen);
+});
+
 const firebaseConfigElement = document.getElementById('pwa-config');
 const notificationButton = document.getElementById('push-notification-button');
 const notificationToast = document.getElementById('push-notification-toast');
@@ -153,11 +165,9 @@ const setNotificationButtonState = (enabled) => {
         return;
     }
 
-    notificationButton.textContent = enabled ? 'Notifikasi Aktif' : 'Aktifkan Notifikasi';
-    notificationButton.classList.toggle('bg-brand-700', !enabled);
-    notificationButton.classList.toggle('hover:bg-brand-600', !enabled);
-    notificationButton.classList.toggle('bg-emerald-600', enabled);
-    notificationButton.classList.toggle('hover:bg-emerald-500', enabled);
+    notificationButton.textContent = enabled ? 'Aktif' : 'Aktifkan Notifikasi';
+    notificationButton.dataset.enabled = String(enabled);
+    notificationButton.setAttribute('aria-label', enabled ? 'Notifikasi aktif. Ketuk untuk mematikan.' : 'Aktifkan notifikasi');
 };
 
 const showNotificationToast = (title, body) => {
@@ -265,7 +275,9 @@ const initializeNotifications = async () => {
 
         try {
             if (window.localStorage.getItem('bazamal_push_enabled') === 'true') {
-                await disableNotifications();
+                if (window.confirm('Matikan notifikasi di perangkat ini?')) {
+                    await disableNotifications();
+                }
             } else {
                 await enableNotificationsWithFeedback();
             }

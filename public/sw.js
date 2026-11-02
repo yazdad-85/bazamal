@@ -1,8 +1,8 @@
-const CACHE_NAME = 'bazamal-static-v2';
+const CACHE_NAME = 'bazamal-static-v3';
 const PRECACHE_URLS = [
     '/offline.html',
-    '/icons/icon-192.png',
-    '/icons/icon-512.png',
+    '/icons/icon-192.png?v=2',
+    '/icons/icon-512.png?v=2',
 ];
 
 self.addEventListener('install', (event) => {
@@ -72,8 +72,8 @@ self.addEventListener('push', (event) => {
     const title = notification.title || data.title || 'Bazar Amal';
     const options = {
         body: notification.body || data.body || '',
-        icon: notification.icon || '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
+        icon: notification.icon || '/icons/icon-192.png?v=2',
+        badge: '/icons/icon-192.png?v=2',
         data: {
             url: data.url || payload.fcmOptions?.link || '/',
         },

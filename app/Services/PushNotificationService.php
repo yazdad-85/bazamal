@@ -8,6 +8,7 @@ use App\Models\PushSubscription;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class PushNotificationService
 {
@@ -36,6 +37,12 @@ class PushNotificationService
             })
             ->get();
 
+        if ($subscriptions->isEmpty()) {
+            Log::warning('New order notification skipped: no admin device is registered.', [
+                'order_code' => $order->order_code,
+            ]);
+        }
+
         $this->send(
             $subscriptions,
             'Pesanan baru masuk',
@@ -54,6 +61,7 @@ class PushNotificationService
 
         $subscriptions = PushSubscription::query()
             ->where('enabled', true)
+            ->whereNull('user_id')
             ->whereHas('device.orders', fn (Builder $query): Builder => $query->whereKey($order->getKey()))
             ->get();
 

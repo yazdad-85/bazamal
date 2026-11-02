@@ -15,14 +15,14 @@
     id="push-notification-button"
     type="button"
     hidden
-    class="fixed bottom-4 right-4 z-40 rounded-full bg-brand-700 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-900/20 hover:bg-brand-600"
+    class="fixed bottom-4 right-4 z-40 rounded-full bg-brand-700 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-900/20 hover:bg-brand-600 data-[enabled=true]:bottom-2 data-[enabled=true]:right-2 data-[enabled=true]:bg-white/60 data-[enabled=true]:px-2 data-[enabled=true]:py-0.5 data-[enabled=true]:text-[10px] data-[enabled=true]:font-semibold data-[enabled=true]:text-brand-800/70 data-[enabled=true]:shadow-none data-[enabled=true]:backdrop-blur-sm data-[enabled=true]:hover:bg-white/90"
 >
     Aktifkan Notifikasi
 </button>
 
 <div id="pwa-install-banner" hidden class="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-md rounded-2xl border border-brand-100 bg-white p-4 shadow-2xl">
     <div class="flex items-start gap-3">
-        <img src="/icons/icon-192.png" alt="" class="h-12 w-12 shrink-0 rounded-xl">
+        <img src="/icons/icon-192.png?v=2" alt="" class="h-12 w-12 shrink-0 rounded-xl">
         <div class="min-w-0 flex-1">
             <p id="pwa-install-title" class="font-extrabold text-brand-800">Pasang Bazar Amal</p>
             <p id="pwa-install-description" class="mt-1 text-xs leading-5 text-stone-500">Akses lebih cepat langsung dari layar utama perangkat Anda.</p>

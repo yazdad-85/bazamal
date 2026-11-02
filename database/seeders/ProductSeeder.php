@@ -13,7 +13,7 @@ class ProductSeeder extends Seeder
         $products = [
             [
                 'name' => 'Kaos Kebaikan',
-                'description' => 'Kaos katun berkualitas. 100% keuntungan untuk donasi panti asuhan.',
+                'description' => 'Kaos katun berkualitas. 100% keuntungan untuk pengembangan sarana dan prasarana.',
                 'price' => 75000,
                 'stock' => 40,
                 'bazar_type' => 'menu',

@@ -52,7 +52,7 @@
             <p class="text-sm text-stone-500 mt-1">Bazar Amal · Sisa {{ $product->stock }} pcs</p>
             <p class="text-2xl font-extrabold text-brand-700 mt-2">{{ $product->formatted_price }}</p>
             <p class="text-sm text-stone-600 mt-3">{{ $product->description }}</p>
-            <p class="text-xs text-brand-600 font-semibold mt-2">100% keuntungan untuk donasi panti asuhan.</p>
+            <p class="text-xs text-brand-600 font-semibold mt-2">100% keuntungan untuk pengembangan sarana dan prasarana.</p>
             @if ($product->orderingClosed())
                 <p class="text-sm text-red-600 font-semibold mt-2">Pemesanan menu sudah ditutup pada {{ $product->menuDeadlineLabel() }}.</p>
             @elseif (! $product->isInfak())

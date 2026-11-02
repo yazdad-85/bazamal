@@ -25,6 +25,20 @@
                   placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, dan catatan untuk tim pengantar"
                   class="w-full rounded-xl border-stone-200"></textarea>
         @error('delivery_address') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+
+        @if ($hasMenuItems)
+            <div class="mt-3">
+                <label class="block text-sm font-semibold mb-1">Hari pengiriman</label>
+                <select wire:model="delivery_date" required class="w-full rounded-xl border-stone-200">
+                    <option value="">Pilih hari pengiriman</option>
+                    @foreach ($deliveryDates as $date => $label)
+                        <option wire:key="delivery-date-{{ $date }}" value="{{ $date }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+                @error('delivery_date') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                <p class="text-xs text-stone-400 mt-1">Pilih hari yang diinginkan untuk pengantaran Menu Bazar.</p>
+            </div>
+        @endif
     </section>
 
     <section>

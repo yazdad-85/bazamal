@@ -60,6 +60,11 @@ class WhatsAppLinkService
             $lines[] = 'Alamat: '.$order->delivery_address;
             $lines[] = 'Ongkir: Gratis, diantar tim panitia';
         }
+
+        if ($order->delivery_date) {
+            $lines[] = 'Hari pengiriman: '.$order->delivery_date_label;
+        }
+
         $lines[] = 'Bayar: '.$order->payment_method_label;
         $lines[] = '';
         $lines[] = '*Item:*';

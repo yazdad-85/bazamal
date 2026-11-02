@@ -7,11 +7,13 @@ use App\Livewire\CheckoutForm;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\CartService;
+use App\Services\WhatsAppLinkService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Carbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -53,6 +55,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Andi Pembeli')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'tunai')
             ->call('submit')
             ->assertHasErrors(['payment_method']);
@@ -68,6 +71,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Andi Pembeli')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'tunai')
             ->call('submit')
             ->assertRedirect();
@@ -77,6 +81,7 @@ class BazarFlowTest extends TestCase
         $this->assertSame('umum', $order->buyer_type);
         $this->assertSame('kirim_alamat', $order->pickup_method);
         $this->assertSame('081234567890', $order->phone);
+        $this->assertSame('2026-12-16', $order->delivery_date->toDateString());
         $this->assertNull($order->institution);
         $this->assertSame('diproses', $order->status);
         $this->assertSame(1, $order->items()->count());
@@ -93,6 +98,73 @@ class BazarFlowTest extends TestCase
             ->assertSee($order->status_label);
     }
 
+    public function test_menu_checkout_requires_a_delivery_date(): void
+    {
+        $this->seed();
+        config(['bazar.cash_payment_enabled' => true]);
+
+        $menu = Product::where('bazar_type', Product::TYPE_MENU)->firstOrFail();
+        app(CartService::class)->add($menu, 1);
+
+        Livewire::test(CheckoutForm::class)
+            ->assertSee('Hari pengiriman')
+            ->assertSee('Rabu, 16 Desember 2026')
+            ->assertSee('Kamis, 17 Desember 2026')
+            ->assertSee('Jumat, 18 Desember 2026')
+            ->set('full_name', 'Pembeli Menu')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('payment_method', 'tunai')
+            ->call('submit')
+            ->assertHasErrors(['delivery_date' => ['required']])
+            ->assertSee('Pilih hari pengiriman untuk Menu Bazar.');
+
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_menu_checkout_rejects_a_date_outside_the_available_delivery_dates(): void
+    {
+        $this->seed();
+        config(['bazar.cash_payment_enabled' => true]);
+
+        $menu = Product::where('bazar_type', Product::TYPE_MENU)->firstOrFail();
+        app(CartService::class)->add($menu, 1);
+
+        Livewire::test(CheckoutForm::class)
+            ->set('full_name', 'Pembeli Menu')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-19')
+            ->set('payment_method', 'tunai')
+            ->call('submit')
+            ->assertHasErrors(['delivery_date' => ['in']])
+            ->assertSee('Pilih salah satu hari pengiriman yang tersedia.');
+
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_infak_checkout_does_not_request_or_store_a_delivery_date(): void
+    {
+        $this->seed();
+        config(['bazar.cash_payment_enabled' => true]);
+
+        $infak = Product::where('bazar_type', Product::TYPE_INFAK)->firstOrFail();
+        app(CartService::class)->add($infak, 1);
+
+        Livewire::test(CheckoutForm::class)
+            ->assertDontSee('Hari pengiriman')
+            ->set('full_name', 'Pemberi Infak')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
+            ->set('payment_method', 'tunai')
+            ->call('submit')
+            ->assertRedirect();
+
+        $order = Order::firstOrFail();
+        $this->assertNull($order->delivery_date);
+    }
+
     public function test_buyer_can_lookup_saved_order_by_code_and_name(): void
     {
         $this->seed();
@@ -105,6 +177,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Budi Umum')
             ->set('phone', '081111111111')
             ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
             ->set('payment_proof', UploadedFile::fake()->image('qris.jpg'))
             ->call('submit')
@@ -138,6 +211,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Salah Klik')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
             ->set('payment_proof', UploadedFile::fake()->image('qris.jpg'))
             ->call('submit')
@@ -179,9 +253,11 @@ class BazarFlowTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->assertSee('Tidak ada biaya kirim')
             ->assertDontSee('Ambil di Lokasi')
+            ->assertSee('Hari pengiriman')
             ->set('full_name', 'Siti Umum')
             ->set('phone', '081222222222')
             ->set('delivery_address', 'Jl. Melati No. 8, RT 02/RW 03, Kelurahan Sumber')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
             ->set('payment_proof', UploadedFile::fake()->image('qris.jpg'))
             ->call('submit')
@@ -190,12 +266,27 @@ class BazarFlowTest extends TestCase
         $order = Order::latest('id')->firstOrFail();
         $this->assertSame('kirim_alamat', $order->pickup_method);
         $this->assertSame('Jl. Melati No. 8, RT 02/RW 03, Kelurahan Sumber', $order->delivery_address);
+        $this->assertSame('2026-12-16', $order->delivery_date->toDateString());
         $this->assertSame($price, $order->subtotal);
 
         $this->get(route('checkout.success', ['orderCode' => $order->order_code]))
             ->assertOk()
             ->assertSee('Kirim ke Alamat')
-            ->assertSee('Jl. Melati No. 8');
+            ->assertSee('Jl. Melati No. 8')
+            ->assertSee('Rabu, 16 Desember 2026');
+
+        $this->get(route('orders.show', ['orderCode' => $order->order_code]))
+            ->assertOk()
+            ->assertSee('Rabu, 16 Desember 2026');
+
+        $message = app(WhatsAppLinkService::class)->message($order);
+        $this->assertStringContainsString('Hari pengiriman: Rabu, 16 Desember 2026', $message);
+
+        $admin = User::where('email', 'admin@bazar.test')->firstOrFail();
+        $this->actingAs($admin)
+            ->get(route('admin.orders.show', $order))
+            ->assertOk()
+            ->assertSee('Rabu, 16 Desember 2026');
     }
 
     public function test_order_details_are_not_visible_from_another_session(): void
@@ -209,6 +300,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Rahasia Pembeli')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
             ->set('payment_proof', UploadedFile::fake()->image('qris.jpg'))
             ->call('submit')
@@ -244,6 +336,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Pembeli Transfer')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'transfer')
             ->set('payment_proof', UploadedFile::fake()->image('bukti.jpg'))
             ->call('submit')
@@ -275,6 +368,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Pembeli QRIS')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
             ->call('submit')
             ->assertHasErrors(['payment_proof']);
@@ -285,6 +379,7 @@ class BazarFlowTest extends TestCase
             ->set('full_name', 'Pembeli QRIS')
             ->set('phone', '081234567890')
             ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
             ->set('payment_proof', UploadedFile::fake()->image('qris-berhasil.jpg'))
             ->call('submit')
@@ -442,7 +537,7 @@ class BazarFlowTest extends TestCase
             ])
             ->assertRedirect();
 
-        $this->assertSame('Bazar Amal Yayasan', \App\Models\Setting::siteName());
-        $this->assertSame('6281111111111', \App\Models\Setting::bendaharaWhatsApp());
+        $this->assertSame('Bazar Amal Yayasan', Setting::siteName());
+        $this->assertSame('6281111111111', Setting::bendaharaWhatsApp());
     }
 }

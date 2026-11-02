@@ -20,6 +20,9 @@
                     @if ($order->delivery_address)
                         <div class="sm:col-span-2"><dt class="text-stone-400">Alamat</dt><dd class="font-semibold">{{ $order->delivery_address }}</dd><dd class="text-xs text-stone-400">Tanpa ongkir. Diantar tim panitia.</dd></div>
                     @endif
+                    @if ($order->delivery_date)
+                        <div><dt class="text-stone-400">Hari pengiriman</dt><dd class="font-semibold">{{ $order->delivery_date_label }}</dd></div>
+                    @endif
                     <div><dt class="text-stone-400">Bayar</dt><dd class="font-semibold">{{ $order->payment_method_label }}</dd></div>
                     <div><dt class="text-stone-400">Tanggal</dt><dd class="font-semibold">{{ $order->created_at->format('d M Y H:i') }}</dd></div>
                 </dl>

@@ -25,6 +25,7 @@ class Order extends Model
         'phone',
         'pickup_method',
         'delivery_address',
+        'delivery_date',
         'payment_method',
         'payment_proof',
         'subtotal',
@@ -34,6 +35,7 @@ class Order extends Model
     protected function casts(): array
     {
         return [
+            'delivery_date' => 'date',
             'subtotal' => 'integer',
         ];
     }
@@ -75,6 +77,11 @@ class Order extends Model
     public function getFormattedSubtotalAttribute(): string
     {
         return 'Rp '.number_format($this->subtotal, 0, ',', '.');
+    }
+
+    public function getDeliveryDateLabelAttribute(): ?string
+    {
+        return $this->delivery_date?->locale('id')->isoFormat('dddd, D MMMM Y');
     }
 
     public function getStatusLabelAttribute(): string

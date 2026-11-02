@@ -50,6 +50,9 @@
                 <p><span class="text-stone-500">Alamat:</span> {{ $order->delivery_address }}</p>
                 <p class="text-xs text-stone-400">Tanpa ongkir. Diantar tim panitia.</p>
             @endif
+            @if ($order->delivery_date)
+                <p><span class="text-stone-500">Hari pengiriman:</span> <strong>{{ $order->delivery_date_label }}</strong></p>
+            @endif
             <p><span class="text-stone-500">Bayar:</span> {{ $order->payment_method_label }}</p>
             @if ($qrisUrl)
                 <div class="pt-2 text-center">

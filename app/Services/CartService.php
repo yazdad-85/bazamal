@@ -88,6 +88,13 @@ class CartService
         return $this->items()->sum(fn ($item) => $item['price'] * $item['qty']);
     }
 
+    public function containsMenuItems(): bool
+    {
+        return $this->items()->contains(
+            fn (array $item): bool => ($item['bazar_type'] ?? null) === Product::TYPE_MENU
+        );
+    }
+
     public function isEmpty(): bool
     {
         return empty($this->all());

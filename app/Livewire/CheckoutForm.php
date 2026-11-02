@@ -24,6 +24,8 @@ class CheckoutForm extends Component
 
     public string $delivery_address = '';
 
+    public string $delivery_date = '';
+
     public string $payment_method = 'online';
 
     public $payment_proof;
@@ -54,10 +56,16 @@ class CheckoutForm extends Component
         }
         RateLimiter::hit($limitKey, 600);
 
+        $hasMenuItems = $cart->containsMenuItems();
+        $deliveryDates = config('bazar.menu_delivery_dates', []);
+
         $rules = [
             'full_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:30'],
             'delivery_address' => ['required', 'string', 'max:500'],
+            'delivery_date' => $hasMenuItems
+                ? ['required', 'date', Rule::in(array_keys($deliveryDates))]
+                : ['nullable'],
             'payment_method' => ['required', Rule::in(array_keys(Order::checkoutPaymentMethods()))],
         ];
 
@@ -65,10 +73,14 @@ class CheckoutForm extends Component
             $rules['payment_proof'] = ['required', 'image', 'max:2048'];
         }
 
-        $this->validate($rules);
+        $this->validate($rules, [
+            'delivery_date.required' => 'Pilih hari pengiriman untuk Menu Bazar.',
+            'delivery_date.date' => 'Hari pengiriman tidak valid.',
+            'delivery_date.in' => 'Pilih salah satu hari pengiriman yang tersedia.',
+        ]);
 
         try {
-            $order = DB::transaction(function () use ($cart) {
+            $order = DB::transaction(function () use ($cart, $hasMenuItems) {
                 $items = $cart->items();
                 $subtotal = 0;
 
@@ -108,6 +120,7 @@ class CheckoutForm extends Component
                     'phone' => $this->phone,
                     'pickup_method' => 'kirim_alamat',
                     'delivery_address' => $this->delivery_address,
+                    'delivery_date' => $hasMenuItems ? $this->delivery_date : null,
                     'payment_method' => $this->payment_method,
                     'payment_proof' => $proofPath,
                     'subtotal' => $subtotal,
@@ -146,8 +159,12 @@ class CheckoutForm extends Component
 
     public function render()
     {
+        $cart = app(CartService::class);
+
         return view('livewire.checkout-form', [
             'bankInfo' => Setting::bankInfo(),
+            'deliveryDates' => config('bazar.menu_delivery_dates', []),
+            'hasMenuItems' => $cart->containsMenuItems(),
             'qrisUrl' => Setting::qrisUrl(),
             'paymentMethods' => Order::checkoutPaymentMethods(),
         ]);

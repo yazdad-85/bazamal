@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
         <meta name="robots" content="noindex, nofollow">
-        @include('partials.favicon')
+        @include('partials.favicon', ['manifestUrl' => route('admin.manifest', absolute: false)])
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

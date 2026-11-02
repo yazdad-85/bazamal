@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\PushSender;
+use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Laravel\Firebase\FirebaseProjectManager;
 use Throwable;
@@ -76,6 +77,8 @@ class FirebasePushSender implements PushSender
         $credentials = config('firebase.projects.app.credentials');
 
         if (! is_string($credentials) || $credentials === '') {
+            Log::warning('Firebase credentials are not configured; push notifications were not sent.');
+
             return false;
         }
 
@@ -83,6 +86,14 @@ class FirebasePushSender implements PushSender
             ? $credentials
             : base_path($credentials);
 
-        return is_readable($credentialsPath);
+        if (! is_readable($credentialsPath)) {
+            Log::warning('Firebase credentials file is missing or unreadable; push notifications were not sent.', [
+                'path' => $credentialsPath,
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 }

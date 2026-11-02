@@ -1,4 +1,4 @@
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="manifest" href="{{ $manifestUrl ?? '/manifest.webmanifest' }}">
 <meta name="theme-color" content="#145214">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">

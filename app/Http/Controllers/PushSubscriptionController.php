@@ -19,11 +19,17 @@ class PushSubscriptionController extends Controller
         $device = $identity->current();
         abort_unless($device, 409, 'Identitas perangkat belum tersedia. Muat ulang halaman.');
 
+        $tokenHash = PushSubscription::hashToken($data['token']);
+        $existingSubscription = PushSubscription::query()->firstWhere('token_hash', $tokenHash);
+        $sameDeviceUserId = $existingSubscription?->device_id === $device->getKey()
+            ? $existingSubscription->user_id
+            : null;
+
         $subscription = PushSubscription::query()->updateOrCreate([
-            'token_hash' => PushSubscription::hashToken($data['token']),
+            'token_hash' => $tokenHash,
         ], [
             'device_id' => $device->getKey(),
-            'user_id' => $request->user()?->getKey(),
+            'user_id' => $request->user()?->getKey() ?? $sameDeviceUserId,
             'token' => $data['token'],
             'platform' => $data['platform'] ?? null,
             'enabled' => true,

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AdminManifestController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -11,6 +12,10 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 $loginPath = trim((string) config('bazar.login_path', 'yasm-gerbang'), '/');
+
+Route::get($loginPath.'/manifest.webmanifest', AdminManifestController::class)
+    ->withoutMiddleware('web')
+    ->name('admin.manifest');
 
 Route::middleware('guest')->group(function () use ($loginPath) {
     Route::get($loginPath, [AuthenticatedSessionController::class, 'create'])

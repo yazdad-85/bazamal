@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') — Admin {{ $siteName ?? 'Bazar Amal' }}</title>
     <meta name="robots" content="noindex, nofollow">
-    @include('partials.favicon')
+    @include('partials.favicon', ['manifestUrl' => route('admin.manifest', absolute: false)])
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=nunito:400,600,700,800&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])

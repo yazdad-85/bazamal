@@ -150,6 +150,13 @@ const setNotificationButtonState = (enabled) => {
     notificationButton.classList.toggle('hover:bg-emerald-500', enabled);
 };
 
+const showNotificationToast = (title, body) => {
+    notificationToastTitle.textContent = title;
+    notificationToastBody.textContent = body;
+    notificationToast?.removeAttribute('hidden');
+    window.setTimeout(() => notificationToast?.setAttribute('hidden', ''), 6000);
+};
+
 const initializeNotifications = async () => {
     if (!firebaseConfig || !firebaseConfigElement?.dataset.vapidKey || !('serviceWorker' in navigator) || !window.isSecureContext) {
         return;
@@ -180,6 +187,8 @@ const initializeNotifications = async () => {
         if (permission !== 'granted') {
             return false;
         }
+
+        await navigator.serviceWorker.ready;
 
         currentToken = await getToken(messaging, {
             vapidKey: firebaseConfigElement.dataset.vapidKey,
@@ -232,25 +241,34 @@ const initializeNotifications = async () => {
             if (window.localStorage.getItem('bazamal_push_enabled') === 'true') {
                 await disableNotifications();
             } else {
-                await enableNotifications(true);
+                const isEnabled = await enableNotifications(true);
+
+                if (!isEnabled && !(isIos && !isStandalone)) {
+                    showNotificationToast(
+                        'Notifikasi belum aktif',
+                        Notification.permission === 'denied'
+                            ? 'Izin notifikasi diblokir. Izinkan melalui pengaturan situs atau aplikasi.'
+                            : 'Izin notifikasi belum diberikan.',
+                    );
+                }
             }
+        } catch (error) {
+            console.error('Firebase notification update failed.', error);
+            showNotificationToast('Notifikasi gagal diperbarui', 'Periksa koneksi internet, lalu coba lagi.');
         } finally {
             notificationButton.disabled = false;
         }
     });
 
-    if (Notification.permission === 'granted') {
-        await enableNotifications(false);
+    if (Notification.permission === 'granted' && window.localStorage.getItem('bazamal_push_enabled') === 'true') {
+        enableNotifications(false).catch((error) => console.error('Firebase token refresh failed.', error));
     }
 
     onMessage(messaging, (payload) => {
         const title = payload.notification?.title || payload.data?.title || 'Bazar Amal';
         const body = payload.notification?.body || payload.data?.body || '';
 
-        notificationToastTitle.textContent = title;
-        notificationToastBody.textContent = body;
-        notificationToast?.removeAttribute('hidden');
-        window.setTimeout(() => notificationToast?.setAttribute('hidden', ''), 6000);
+        showNotificationToast(title, body);
     });
 };
 

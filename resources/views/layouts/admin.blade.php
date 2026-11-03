@@ -63,7 +63,14 @@
 
         <div class="flex-1 min-w-0">
             <header class="bg-white border-b border-stone-200 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
-                <h1 class="font-display font-bold text-lg text-brand-800">@yield('heading', 'Dashboard')</h1>
+                <div class="flex min-w-0 items-center gap-1">
+                    @hasSection('back_url')
+                        <a href="@yield('back_url')" aria-label="Kembali" title="Kembali" class="-ml-2 shrink-0 rounded-lg p-2 text-brand-800 hover:bg-stone-100">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </a>
+                    @endif
+                    <h1 class="truncate font-display font-bold text-lg text-brand-800">@yield('heading', 'Dashboard')</h1>
+                </div>
                 <div class="text-right">
                     <div class="text-sm font-semibold text-stone-700">{{ auth()->user()->name }}</div>
                     <div class="text-xs text-stone-400">{{ auth()->user()->role_label }}</div>

@@ -103,6 +103,126 @@ adminMenuButton?.addEventListener('click', () => {
     document.getElementById('admin-menu-close-icon').classList.toggle('hidden', !isOpen);
 });
 
+const PAYMENT_PROOF_TARGET_BYTES = 1024 * 1024;
+const PAYMENT_PROOF_DIMENSIONS = [1600, 1280, 1024, 800];
+let isPaymentProofUploading = false;
+
+const loadImageSource = async (file) => {
+    if (window.createImageBitmap) {
+        try {
+            return await createImageBitmap(file, { imageOrientation: 'from-image' });
+        } catch {
+            // Older browsers reject the options argument, so fall through to an image element.
+        }
+    }
+
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    try {
+        image.src = objectUrl;
+        await image.decode();
+
+        return image;
+    } finally {
+        URL.revokeObjectURL(objectUrl);
+    }
+};
+
+const compressPaymentProof = async (file) => {
+    const source = await loadImageSource(file);
+    const sourceWidth = source.width || source.naturalWidth;
+    const sourceHeight = source.height || source.naturalHeight;
+    let compressedBlob = null;
+
+    for (const maximumDimension of PAYMENT_PROOF_DIMENSIONS) {
+        const scale = Math.min(1, maximumDimension / Math.max(sourceWidth, sourceHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(sourceWidth * scale);
+        canvas.height = Math.round(sourceHeight * scale);
+
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(source, 0, 0, canvas.width, canvas.height);
+
+        compressedBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+
+        if (compressedBlob && compressedBlob.size <= PAYMENT_PROOF_TARGET_BYTES) {
+            break;
+        }
+    }
+
+    if (!compressedBlob || compressedBlob.size >= file.size) {
+        return file;
+    }
+
+    return new File([compressedBlob], 'bukti-pembayaran.jpg', { type: 'image/jpeg' });
+};
+
+const setPaymentProofState = (input, { isUploading, message, isError = false }) => {
+    const status = document.getElementById('payment-proof-status');
+    const submitButton = document.getElementById('checkout-submit');
+
+    isPaymentProofUploading = isUploading;
+    input.disabled = isUploading;
+
+    if (submitButton) {
+        submitButton.disabled = isUploading;
+    }
+
+    if (status) {
+        status.textContent = message;
+        status.dataset.error = String(isError);
+        status.removeAttribute('hidden');
+    }
+};
+
+document.addEventListener('change', async (event) => {
+    if (event.target.id !== 'payment-proof-input' || !event.target.files[0]) {
+        return;
+    }
+
+    const input = event.target;
+    const originalFile = input.files[0];
+    const component = window.Livewire.find(input.closest('[wire\\:id]').getAttribute('wire:id'));
+
+    setPaymentProofState(input, { isUploading: true, message: 'Menyiapkan foto...' });
+
+    const file = await compressPaymentProof(originalFile).catch((error) => {
+        console.error('Payment proof compression failed.', error);
+
+        return originalFile;
+    });
+
+    setPaymentProofState(input, { isUploading: true, message: 'Mengunggah foto... 0%' });
+
+    component.upload(
+        'payment_proof',
+        file,
+        () => setPaymentProofState(input, { isUploading: false, message: 'Foto siap dikirim.' }),
+        () => {
+            input.value = '';
+            setPaymentProofState(input, {
+                isUploading: false,
+                message: 'Foto gagal diunggah. Periksa koneksi internet, lalu pilih foto lagi.',
+                isError: true,
+            });
+        },
+        (progressEvent) => setPaymentProofState(input, {
+            isUploading: true,
+            message: `Mengunggah foto... ${progressEvent.detail.progress}%`,
+        }),
+    );
+});
+
+document.addEventListener('click', (event) => {
+    if (isPaymentProofUploading && event.target.closest('#checkout-submit')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+}, true);
+
 const firebaseConfigElement = document.getElementById('pwa-config');
 const notificationButton = document.getElementById('push-notification-button');
 const notificationToast = document.getElementById('push-notification-toast');

@@ -2,6 +2,7 @@
 
 @section('title', $order->order_code)
 @section('heading', 'Detail Pesanan')
+@section('back_url', route('admin.orders.index'))
 
 @section('content')
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">

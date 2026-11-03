@@ -77,6 +77,9 @@ class CheckoutForm extends Component
             'delivery_date.required' => 'Pilih hari pengiriman untuk Menu Bazar.',
             'delivery_date.date' => 'Hari pengiriman tidak valid.',
             'delivery_date.in' => 'Pilih salah satu hari pengiriman yang tersedia.',
+            'payment_proof.required' => 'Unggah bukti pembayaran terlebih dahulu.',
+            'payment_proof.image' => 'Bukti pembayaran harus berupa gambar JPG atau PNG.',
+            'payment_proof.max' => 'Ukuran bukti pembayaran terlalu besar. Pilih gambar lain atau tangkapan layar.',
         ]);
 
         try {

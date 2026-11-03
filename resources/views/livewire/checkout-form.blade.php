@@ -74,14 +74,16 @@
             <div class="mt-3 space-y-2 rounded-xl bg-stone-50 p-3 text-left">
                 <label class="block text-sm font-semibold">Bukti pembayaran berhasil</label>
                 <p class="text-xs text-stone-500">Wajib. Panitia memakai gambar ini untuk mencocokkan pembayaran.</p>
-                <input type="file" wire:model="payment_proof" accept="image/*" class="block w-full text-sm">
+                <div wire:ignore class="space-y-2">
+                    <input id="payment-proof-input" type="file" accept="image/*" class="block w-full text-sm">
+                    <p id="payment-proof-status" role="status" hidden class="text-xs font-semibold text-brand-700 data-[error=true]:text-red-600"></p>
+                </div>
                 @error('payment_proof') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-                <div wire:loading wire:target="payment_proof" class="text-xs text-brand-600">Mengunggah...</div>
             </div>
         @endif
     </section>
 
-    <button type="button" wire:click="submit" wire:loading.attr="disabled"
+    <button id="checkout-submit" type="button" wire:click="submit" wire:loading.attr="disabled"
             class="w-full rounded-xl bg-accent-600 hover:bg-accent-500 disabled:opacity-60 text-white font-extrabold py-3.5">
         <span wire:loading.remove wire:target="submit">Selesaikan Pesanan & Kirim ke Admin</span>
         <span wire:loading wire:target="submit">Memproses...</span>

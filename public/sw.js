@@ -87,12 +87,26 @@ self.addEventListener('notificationclick', (event) => {
 
     const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
 
-    event.waitUntil(
-        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-            const matchingClient = clients.find((client) => client.url === targetUrl);
+    const isAdminUrl = (url) => new URL(url).pathname.startsWith('/admin');
 
-            if (matchingClient) {
-                return matchingClient.focus();
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (clients) => {
+            const exactClient = clients.find((client) => client.url === targetUrl);
+
+            if (exactClient) {
+                return exactClient.focus();
+            }
+
+            const sameAreaClient = clients.find((client) => isAdminUrl(client.url) === isAdminUrl(targetUrl));
+
+            if (sameAreaClient) {
+                try {
+                    const navigatedClient = await sameAreaClient.navigate(targetUrl);
+
+                    return (navigatedClient || sameAreaClient).focus();
+                } catch {
+                    // Windows the worker does not control cannot navigate, so open a new one.
+                }
             }
 
             return self.clients.openWindow(targetUrl);

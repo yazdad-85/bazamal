@@ -355,6 +355,27 @@ class BazarFlowTest extends TestCase
             ->assertOk();
     }
 
+    public function test_checkout_rejects_an_oversized_payment_proof_with_a_clear_message(): void
+    {
+        $this->seed();
+        Storage::fake('local');
+
+        app(CartService::class)->add(Product::where('slug', 'tote-bag-kanvas-amal')->firstOrFail(), 1);
+
+        Livewire::test(CheckoutForm::class)
+            ->set('full_name', 'Pembeli Foto Besar')
+            ->set('phone', '081234567890')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
+            ->set('payment_method', 'transfer')
+            ->set('payment_proof', UploadedFile::fake()->image('bukti.jpg')->size(2049))
+            ->call('submit')
+            ->assertHasErrors(['payment_proof' => 'max'])
+            ->assertSee('Ukuran bukti pembayaran terlalu besar.');
+
+        $this->assertSame(0, Order::count());
+    }
+
     public function test_qris_checkout_requires_a_payment_proof(): void
     {
         $this->seed();

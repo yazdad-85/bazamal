@@ -45,8 +45,8 @@ class PushNotificationService
 
         $this->send(
             $subscriptions,
-            'Pesanan baru masuk',
-            $order->order_code.' · '.$order->full_name.' · '.$order->formatted_subtotal,
+            'Pesanan baru dari '.$order->full_name,
+            $order->formatted_subtotal.' · '.$order->order_code,
             route('admin.orders.show', $order),
         );
     }

@@ -37,7 +37,8 @@ class PushNotificationTest extends TestCase
 
         $this->assertCount(1, $sender->calls);
         $this->assertSame(['inti-token'], $sender->calls[0]['tokens']);
-        $this->assertSame('Pesanan baru masuk', $sender->calls[0]['title']);
+        $this->assertSame('Pesanan baru dari Pembeli Notifikasi', $sender->calls[0]['title']);
+        $this->assertSame('Rp 25.000 · BA-PUSH-ADMIN', $sender->calls[0]['body']);
         $this->assertStringContainsString($order->order_code, $sender->calls[0]['body']);
     }
 
@@ -142,7 +143,7 @@ class PushNotificationTest extends TestCase
 
         defer()->invoke();
 
-        $notification = collect($sender->calls)->firstWhere('title', 'Pesanan baru masuk');
+        $notification = collect($sender->calls)->firstWhere('title', 'Pesanan baru dari Pembeli Baru');
 
         $this->assertSame(['admin-checkout-token'], $notification['tokens']);
         $this->assertSame(route('admin.orders.show', Order::query()->sole()), $notification['url']);

@@ -15,6 +15,7 @@ use App\Services\PushNotificationService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 class PushNotificationTest extends TestCase
@@ -56,8 +57,6 @@ class PushNotificationTest extends TestCase
 
         $this->assertCount(1, $sender->calls);
         $this->assertSame(['buyer-token'], $sender->calls[0]['tokens']);
-        $this->assertSame('Status pesanan diperbarui', $sender->calls[0]['title']);
-        $this->assertStringContainsString($order->status_label, $sender->calls[0]['body']);
     }
 
     public function test_invalid_tokens_returned_by_firebase_are_deleted(): void
@@ -100,11 +99,62 @@ class PushNotificationTest extends TestCase
 
         defer()->invoke();
 
-        $notification = collect($sender->calls)->firstWhere('title', 'Status pesanan diperbarui');
+        $notification = collect($sender->calls)->firstWhere('title', 'Pesanan sedang diproses');
 
         $this->assertSame(['buyer-after-checkout-token'], $notification['tokens']);
-        $this->assertSame('BA-PUSH-VERIFIED sekarang Diproses.', $notification['body']);
         $this->assertSame(route('orders.show', ['orderCode' => 'BA-PUSH-VERIFIED']), $notification['url']);
+    }
+
+    #[TestWith(['menunggu_verifikasi', 'Pembayaran sedang diperiksa', 'Panitia sedang memeriksa pembayaran Anda. · BA-PUSH-TEXT'])]
+    #[TestWith(['diproses', 'Pesanan sedang diproses', 'Pembayaran sudah diterima dan pesanan sedang disiapkan. · BA-PUSH-TEXT'])]
+    #[TestWith(['siap_diantar', 'Pesanan siap diantar', 'Pesanan Anda segera diantar oleh panitia. · BA-PUSH-TEXT'])]
+    #[TestWith(['selesai', 'Pesanan selesai', 'Terima kasih sudah berbelanja sambil beramal. · BA-PUSH-TEXT'])]
+    #[TestWith(['batal', 'Pesanan dibatalkan', 'Hubungi panitia jika ada pertanyaan. · BA-PUSH-TEXT'])]
+    public function test_status_notification_text_matches_the_order_status(string $status, string $title, string $body): void
+    {
+        $sender = $this->fakeSender();
+        $order = $this->createOrder('BA-PUSH-TEXT');
+        $order->updateQuietly(['status' => $status]);
+
+        $this->app->make(PushNotificationService::class)->notifyCustomerOfStatusChange($order->id);
+
+        $this->assertSame($title, $sender->calls[0]['title']);
+        $this->assertSame($body, $sender->calls[0]['body']);
+    }
+
+    public function test_buyer_cancelling_their_own_order_receives_no_notification_but_admin_cancelling_notifies(): void
+    {
+        $sender = $this->fakeSender();
+        $deviceToken = str_repeat('k', 64);
+        $buyerDevice = Device::query()->create([
+            'token_hash' => DeviceIdentity::hashToken($deviceToken),
+            'last_seen_at' => now(),
+        ]);
+        $this->createSubscription($buyerDevice, 'buyer-cancel-token');
+
+        $ownOrder = $this->createOrder('BA-PUSH-SELF-CANCEL');
+        $buyerDevice->orders()->attach($ownOrder);
+
+        $this->withCredentials()
+            ->withCookie(DeviceIdentity::COOKIE_NAME, $deviceToken)
+            ->post(route('orders.cancel', ['orderCode' => 'BA-PUSH-SELF-CANCEL']))
+            ->assertRedirect(route('products.index', ['bazar' => 'menu']));
+
+        defer()->invoke();
+
+        $this->assertSame('batal', $ownOrder->fresh()->status);
+        $this->assertNull(collect($sender->calls)->firstWhere('title', 'Pesanan dibatalkan'));
+
+        $adminCancelledOrder = $this->createOrder('BA-PUSH-ADMIN-CANCEL');
+        $buyerDevice->orders()->attach($adminCancelledOrder);
+
+        $this->actingAs(User::factory()->create(['role' => User::ROLE_INTI]))
+            ->patch(route('admin.orders.status', $adminCancelledOrder), ['status' => 'batal'])
+            ->assertRedirect();
+
+        defer()->invoke();
+
+        $this->assertSame(['buyer-cancel-token'], collect($sender->calls)->firstWhere('title', 'Pesanan dibatalkan')['tokens']);
     }
 
     public function test_status_notification_skips_an_admin_device_linked_to_the_order(): void

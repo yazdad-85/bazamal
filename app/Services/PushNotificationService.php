@@ -65,12 +65,29 @@ class PushNotificationService
             ->whereHas('device.orders', fn (Builder $query): Builder => $query->whereKey($order->getKey()))
             ->get();
 
+        [$title, $message] = $this->statusNotificationText($order);
+
         $this->send(
             $subscriptions,
-            'Status pesanan diperbarui',
-            $order->order_code.' sekarang '.$order->status_label.'.',
+            $title,
+            $message.' · '.$order->order_code,
             route('orders.show', ['orderCode' => $order->order_code]),
         );
+    }
+
+    /**
+     * @return array{0: string, 1: string}
+     */
+    private function statusNotificationText(Order $order): array
+    {
+        return match ($order->status) {
+            'menunggu_verifikasi' => ['Pembayaran sedang diperiksa', 'Panitia sedang memeriksa pembayaran Anda.'],
+            'diproses' => ['Pesanan sedang diproses', 'Pembayaran sudah diterima dan pesanan sedang disiapkan.'],
+            'siap_diantar' => ['Pesanan siap diantar', 'Pesanan Anda segera diantar oleh panitia.'],
+            'selesai' => ['Pesanan selesai', 'Terima kasih sudah berbelanja sambil beramal.'],
+            'batal' => ['Pesanan dibatalkan', 'Hubungi panitia jika ada pertanyaan.'],
+            default => ['Status pesanan diperbarui', 'Status pesanan Anda sekarang '.$order->status_label.'.'],
+        };
     }
 
     /**

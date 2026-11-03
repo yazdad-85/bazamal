@@ -105,7 +105,7 @@ class OrderTrackingController extends Controller
                 Product::query()->whereKey($item->product_id)->lockForUpdate()->increment('stock', $item->qty);
             }
 
-            $locked->update(['status' => 'batal']);
+            $locked->updateQuietly(['status' => 'batal']);
 
             return true;
         });

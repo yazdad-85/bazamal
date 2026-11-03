@@ -35,7 +35,9 @@ class OrderController extends Controller
 
         $order->update(['status' => $data['status']]);
 
-        return back()->with('success', 'Status pesanan diperbarui.');
+        return redirect()
+            ->route('admin.orders.show', $order)
+            ->with('success', 'Status pesanan diperbarui.');
     }
 
     public function proof(Order $order): BinaryFileResponse

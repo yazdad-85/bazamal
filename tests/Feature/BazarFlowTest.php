@@ -324,6 +324,33 @@ class BazarFlowTest extends TestCase
             ->assertRedirect(route('orders.index'));
     }
 
+    public function test_saving_status_after_viewing_the_proof_returns_to_the_order_page(): void
+    {
+        Storage::fake('local');
+        Storage::disk('local')->put('payment-proofs/bukti.jpg', UploadedFile::fake()->image('bukti.jpg')->getContent());
+        $order = Order::create([
+            'order_code' => 'BA-PROOF-BACK',
+            'buyer_type' => 'umum',
+            'full_name' => 'Pembeli Bukti',
+            'phone' => '081234567890',
+            'pickup_method' => 'kirim_alamat',
+            'payment_method' => 'transfer',
+            'payment_proof' => 'payment-proofs/bukti.jpg',
+            'subtotal' => 25000,
+            'status' => 'menunggu_verifikasi',
+        ]);
+        $this->actingAs(User::factory()->create(['role' => User::ROLE_INTI]));
+
+        $this->get(route('admin.orders.show', $order))->assertOk();
+        $this->get(route('admin.orders.proof', $order))->assertOk();
+
+        $this->patch(route('admin.orders.status', $order), ['status' => 'diproses'])
+            ->assertRedirect(route('admin.orders.show', $order))
+            ->assertSessionHas('success', 'Status pesanan diperbarui.');
+
+        $this->assertSame('diproses', $order->fresh()->status);
+    }
+
     public function test_transfer_proof_is_not_public(): void
     {
         $this->seed();

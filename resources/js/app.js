@@ -223,6 +223,14 @@ document.addEventListener('click', (event) => {
     }
 }, true);
 
+document.addEventListener('click', (event) => {
+    const dialogId = event.target.closest('[data-dialog-open]')?.dataset.dialogOpen;
+
+    if (dialogId) {
+        document.getElementById(dialogId)?.showModal();
+    }
+});
+
 const firebaseConfigElement = document.getElementById('pwa-config');
 const notificationButton = document.getElementById('push-notification-button');
 const notificationToast = document.getElementById('push-notification-toast');

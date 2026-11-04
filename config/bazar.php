@@ -11,6 +11,8 @@ return [
     ],
     // Ubah menjadi true jika Tunai (Cash/COD) perlu ditawarkan lagi di checkout.
     'cash_payment_enabled' => false,
+    // Titik asal pengantaran bawaan: YASMU, Jl. Kyai Sahlan I No. 24, Manyarejo.
+    'delivery_origin_default' => '-7.120482421350316, 112.60268040851332',
     // Alamat halaman masuk panitia. Jangan memakai kata login.
     'login_path' => 'yasm-gerbang',
 ];

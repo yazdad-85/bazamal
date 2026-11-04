@@ -11,7 +11,7 @@
         <div>
             <label for="delivery_origin" class="mb-1 block text-sm font-semibold">Titik asal pengantaran (lembaga/panitia)</label>
             <input id="delivery_origin" type="text" name="delivery_origin" required inputmode="text" placeholder="-7.1019, 112.5950"
-                   value="{{ old('delivery_origin', $settings['delivery_origin'] ?? '') }}" class="w-full rounded-xl border-stone-200">
+                   value="{{ old('delivery_origin', $settings['delivery_origin'] ?? config('bazar.delivery_origin_default')) }}" class="w-full rounded-xl border-stone-200">
             <p class="mt-1 text-xs text-stone-400">Di Google Maps, tekan lokasi lembaga lalu salin koordinatnya. Saat titik ini berubah, jarak semua desa dihitung ulang.</p>
             @error('delivery_origin') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
         </div>

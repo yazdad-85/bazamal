@@ -131,6 +131,7 @@ class DeliverySettingTest extends TestCase
             ->assertOk()
             ->assertSee('Ongkos Kirim Menu Bazar')
             ->assertSee('Kecamatan Cerme')
+            ->assertSee('value="-7.120482421350316, 112.60268040851332"', false)
             ->assertDontSee('Manyar Sidomukti');
     }
 

@@ -10,26 +10,64 @@
                 <p class="text-sm text-stone-500">Menu Bazar diantar panitia ke Kabupaten Gresik, kecuali Pulau Bawean. Gratis ongkir untuk Kecamatan Manyar, Gresik, dan Bungah.</p>
             </div>
             <div>
-                <label for="delivery_district" class="block text-sm font-semibold mb-1">Kecamatan</label>
-                <select id="delivery_district" wire:model.live="delivery_district" class="w-full rounded-xl border-stone-200">
-                    <option value="">Pilih kecamatan</option>
-                    @foreach ($districts as $district)
-                        <option wire:key="district-{{ $district }}" value="{{ $district }}">{{ $district }}{{ in_array($district, $freeDeliveryDistricts, true) ? ' (gratis ongkir)' : '' }}</option>
-                    @endforeach
-                    <option value="{{ \App\Livewire\CheckoutForm::BAWEAN_AREA }}">Pulau Bawean (Sangkapura, Tambak)</option>
-                    <option value="{{ \App\Livewire\CheckoutForm::OUTSIDE_AREA }}">Di luar Kabupaten Gresik</option>
-                </select>
+                <label for="district_search" class="block text-sm font-semibold mb-1">Kecamatan</label>
+                @if ($delivery_district === '')
+                    <input id="district_search" type="search" wire:model.live.debounce.250ms="district_search" autocomplete="off"
+                           placeholder="Ketik nama kecamatan atau desa" class="w-full rounded-xl border-stone-200">
+                    <div class="mt-1 max-h-60 divide-y divide-stone-100 overflow-y-auto rounded-xl border border-stone-200">
+                        @foreach ($villageMatches as $village)
+                            <button type="button" wire:key="village-match-{{ $village->id }}" wire:click="selectVillage({{ $village->id }})"
+                                    class="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm hover:bg-brand-50">
+                                <span class="min-w-0"><span class="font-semibold">{{ $village->name }}</span> <span class="text-stone-500">· Kec. {{ $village->district }}</span></span>
+                                @if ($village->hasFreeDelivery())
+                                    <span class="shrink-0 text-xs font-bold text-brand-700">Gratis ongkir</span>
+                                @endif
+                            </button>
+                        @endforeach
+                        @foreach ($districtResults as $district)
+                            <button type="button" wire:key="district-{{ $district }}" wire:click="$set('delivery_district', @js($district))"
+                                    class="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm hover:bg-brand-50">
+                                <span>Kec. {{ $district }}</span>
+                                @if (in_array($district, $freeDeliveryDistricts, true))
+                                    <span class="shrink-0 text-xs font-bold text-brand-700">Gratis ongkir</span>
+                                @endif
+                            </button>
+                        @endforeach
+                        @if ($showBaweanOption)
+                            <button type="button" wire:key="district-bawean" wire:click="$set('delivery_district', @js(\App\Livewire\CheckoutForm::BAWEAN_AREA))"
+                                    class="block w-full px-3 py-2.5 text-left text-sm hover:bg-brand-50">Pulau Bawean (Sangkapura, Tambak)</button>
+                        @endif
+                        <button type="button" wire:key="district-outside" wire:click="$set('delivery_district', @js(\App\Livewire\CheckoutForm::OUTSIDE_AREA))"
+                                class="block w-full px-3 py-2.5 text-left text-sm hover:bg-brand-50">Di luar Kabupaten Gresik</button>
+                    </div>
+                @else
+                    <div class="flex items-center justify-between gap-3 rounded-xl border border-stone-200 px-3 py-2.5 text-sm">
+                        <span class="min-w-0 font-semibold">{{ $selectedDistrictLabel }}</span>
+                        <button type="button" wire:click="changeDistrict" class="shrink-0 font-bold text-brand-700 hover:underline">Ganti</button>
+                    </div>
+                @endif
             </div>
 
-            @if ($villages->isNotEmpty())
+            @if ($isKnownDistrict)
                 <div>
-                    <label for="delivery_village_id" class="block text-sm font-semibold mb-1">Desa/Kelurahan</label>
-                    <select id="delivery_village_id" wire:model.live="delivery_village_id" class="w-full rounded-xl border-stone-200">
-                        <option value="">Pilih desa/kelurahan</option>
-                        @foreach ($villages as $village)
-                            <option wire:key="village-{{ $village->id }}" value="{{ $village->id }}">{{ $village->name }}</option>
-                        @endforeach
-                    </select>
+                    <label for="village_search" class="block text-sm font-semibold mb-1">Desa/Kelurahan</label>
+                    @if ($selectedVillage)
+                        <div class="flex items-center justify-between gap-3 rounded-xl border border-stone-200 px-3 py-2.5 text-sm">
+                            <span class="min-w-0 font-semibold">{{ $selectedVillage->name }}</span>
+                            <button type="button" wire:click="changeVillage" class="shrink-0 font-bold text-brand-700 hover:underline">Ganti</button>
+                        </div>
+                    @else
+                        <input id="village_search" type="search" wire:model.live.debounce.250ms="village_search" autocomplete="off"
+                               placeholder="Ketik nama desa/kelurahan" class="w-full rounded-xl border-stone-200">
+                        <div class="mt-1 max-h-60 divide-y divide-stone-100 overflow-y-auto rounded-xl border border-stone-200">
+                            @forelse ($villageResults as $village)
+                                <button type="button" wire:key="village-{{ $village->id }}" wire:click="$set('delivery_village_id', @js((string) $village->id))"
+                                        class="block w-full px-3 py-2.5 text-left text-sm hover:bg-brand-50">{{ $village->name }}</button>
+                            @empty
+                                <p class="px-3 py-2.5 text-sm text-stone-500">Desa tidak ditemukan di Kecamatan {{ $delivery_district }}.</p>
+                            @endforelse
+                        </div>
+                    @endif
                 </div>
             @endif
             @error('delivery_village_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror

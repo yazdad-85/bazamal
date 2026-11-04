@@ -238,6 +238,79 @@ class CheckoutDeliveryTest extends TestCase
         $this->assertSame(1, Order::query()->count());
     }
 
+    public function test_district_search_filters_kecamatan_case_insensitively(): void
+    {
+        $this->addToCart(Product::TYPE_MENU);
+
+        Livewire::test(CheckoutForm::class)
+            ->assertSee('Kec. Benjeng')
+            ->assertSee('Kec. Cerme')
+            ->set('district_search', 'benj')
+            ->assertSee('Kec. Benjeng')
+            ->assertDontSee('Kec. Cerme')
+            ->assertSee('Di luar Kabupaten Gresik');
+    }
+
+    public function test_district_search_finds_a_village_and_selecting_it_fills_both_fields(): void
+    {
+        $this->addToCart(Product::TYPE_MENU);
+        $village = DeliveryVillage::query()->where('district', 'Bungah')->where('name', 'Abar-abir')->firstOrFail();
+
+        Livewire::test(CheckoutForm::class)
+            ->set('district_search', 'abar-')
+            ->assertSee('Abar-abir')
+            ->assertSee('Kec. Bungah')
+            ->call('selectVillage', $village->id)
+            ->assertSet('delivery_district', 'Bungah')
+            ->assertSet('delivery_village_id', (string) $village->id)
+            ->assertSet('district_search', '')
+            ->assertDontSeeHtml('<fieldset disabled');
+    }
+
+    public function test_searching_bawean_villages_offers_the_blocked_island_option(): void
+    {
+        $this->addToCart(Product::TYPE_MENU);
+
+        Livewire::test(CheckoutForm::class)
+            ->set('district_search', 'sangka')
+            ->assertSee('Pulau Bawean (Sangkapura, Tambak)')
+            ->set('district_search', 'cerme')
+            ->assertDontSee('Pulau Bawean (Sangkapura, Tambak)');
+    }
+
+    public function test_village_search_filters_only_within_the_chosen_kecamatan(): void
+    {
+        $this->addToCart(Product::TYPE_MENU);
+
+        Livewire::test(CheckoutForm::class)
+            ->set('delivery_district', 'Bungah')
+            ->assertSee('Abar-abir')
+            ->assertSee('Kisik')
+            ->set('village_search', 'KISIK')
+            ->assertSee('Kisik')
+            ->assertDontSee('Abar-abir')
+            ->set('village_search', 'Roomo')
+            ->assertSee('Desa tidak ditemukan di Kecamatan Bungah.');
+    }
+
+    public function test_changing_location_clears_the_selection(): void
+    {
+        $this->addToCart(Product::TYPE_MENU);
+        $village = DeliveryVillage::query()->where('district', 'Bungah')->firstOrFail();
+
+        $checkout = Livewire::test(CheckoutForm::class)->call('selectVillage', $village->id);
+
+        $checkout->call('changeVillage')
+            ->assertSet('delivery_district', 'Bungah')
+            ->assertSet('delivery_village_id', '')
+            ->assertSeeHtml('<fieldset disabled');
+
+        $checkout->set('delivery_village_id', (string) $village->id)
+            ->call('changeDistrict')
+            ->assertSet('delivery_district', '')
+            ->assertSet('delivery_village_id', '');
+    }
+
     private function fillBuyer(mixed $checkout): mixed
     {
         return $checkout

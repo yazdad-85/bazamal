@@ -10,8 +10,10 @@ use App\Models\Setting;
 use App\Services\CartService;
 use App\Services\DeliveryFeeCalculator;
 use App\Services\OrderHistoryService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -36,6 +38,10 @@ class CheckoutForm extends Component
 
     public string $delivery_village_id = '';
 
+    public string $district_search = '';
+
+    public string $village_search = '';
+
     public string $delivery_address = '';
 
     public string $delivery_date = '';
@@ -47,7 +53,34 @@ class CheckoutForm extends Component
     public function updatedDeliveryDistrict(): void
     {
         $this->delivery_village_id = '';
+        $this->district_search = '';
+        $this->village_search = '';
         $this->resetValidation('delivery_village_id');
+    }
+
+    public function selectVillage(int $villageId): void
+    {
+        $village = DeliveryVillage::query()->find($villageId);
+
+        if (! $village) {
+            return;
+        }
+
+        $this->delivery_district = $village->district;
+        $this->updatedDeliveryDistrict();
+        $this->delivery_village_id = (string) $village->id;
+    }
+
+    public function changeDistrict(): void
+    {
+        $this->delivery_district = '';
+        $this->updatedDeliveryDistrict();
+    }
+
+    public function changeVillage(): void
+    {
+        $this->delivery_village_id = '';
+        $this->village_search = '';
     }
 
     public function submit(CartService $cart)
@@ -231,6 +264,28 @@ class CheckoutForm extends Component
             ->find((int) $this->delivery_village_id);
     }
 
+    private function matchesSearch(string $text, string $search): bool
+    {
+        return trim($search) === '' || Str::contains($text, trim($search), ignoreCase: true);
+    }
+
+    /**
+     * @return Collection<int, DeliveryVillage>
+     */
+    private function villagesMatchingDistrictSearch(): Collection
+    {
+        if (Str::length(trim($this->district_search)) < 2) {
+            return collect();
+        }
+
+        return DeliveryVillage::query()
+            ->orderBy('name')
+            ->get()
+            ->filter(fn (DeliveryVillage $village): bool => $this->matchesSearch($village->name, $this->district_search))
+            ->take(10)
+            ->values();
+    }
+
     public function render()
     {
         $cart = app(CartService::class);
@@ -241,11 +296,26 @@ class CheckoutForm extends Component
         $districts = DeliveryVillage::query()->distinct()->orderBy('district')->pluck('district');
 
         return view('livewire.checkout-form', [
-            'districts' => $districts,
+            'districtResults' => $districts
+                ->filter(fn (string $district): bool => $this->matchesSearch($district, $this->district_search))
+                ->values(),
+            'showBaweanOption' => $this->matchesSearch('Pulau Bawean Sangkapura Tambak', $this->district_search),
+            'villageMatches' => $this->delivery_district === '' ? $this->villagesMatchingDistrictSearch() : collect(),
             'freeDeliveryDistricts' => DeliveryVillage::FREE_DELIVERY_DISTRICTS,
-            'villages' => $districts->contains($this->delivery_district)
-                ? DeliveryVillage::query()->where('district', $this->delivery_district)->orderBy('name')->get()
+            'villageResults' => $districts->contains($this->delivery_district)
+                ? DeliveryVillage::query()
+                    ->where('district', $this->delivery_district)
+                    ->orderBy('name')
+                    ->get()
+                    ->filter(fn (DeliveryVillage $village): bool => $this->matchesSearch($village->name, $this->village_search))
+                    ->values()
                 : collect(),
+            'isKnownDistrict' => $districts->contains($this->delivery_district),
+            'selectedDistrictLabel' => match ($this->delivery_district) {
+                self::BAWEAN_AREA => 'Pulau Bawean (Sangkapura, Tambak)',
+                self::OUTSIDE_AREA => 'Di luar Kabupaten Gresik',
+                default => $this->delivery_district,
+            },
             'blockedAreaMessage' => $hasMenuItems ? $this->blockedAreaMessage() : null,
             'selectedVillage' => $selectedVillage,
             'deliveryFee' => $deliveryFee,

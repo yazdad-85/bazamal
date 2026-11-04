@@ -7,7 +7,7 @@
         <section class="space-y-3">
             <div>
                 <h2 class="font-bold text-brand-800">Lokasi Pengiriman</h2>
-                <p class="text-sm text-stone-500">Menu Bazar diantar panitia ke seluruh Kabupaten Gresik. Gratis ongkir untuk Kecamatan Manyar, Gresik, dan Bungah.</p>
+                <p class="text-sm text-stone-500">Menu Bazar diantar panitia ke Kabupaten Gresik, kecuali Pulau Bawean. Gratis ongkir untuk Kecamatan Manyar, Gresik, dan Bungah.</p>
             </div>
             <div>
                 <label for="delivery_district" class="block text-sm font-semibold mb-1">Kecamatan</label>
@@ -16,6 +16,7 @@
                     @foreach ($districts as $district)
                         <option wire:key="district-{{ $district }}" value="{{ $district }}">{{ $district }}{{ in_array($district, $freeDeliveryDistricts, true) ? ' (gratis ongkir)' : '' }}</option>
                     @endforeach
+                    <option value="{{ \App\Livewire\CheckoutForm::BAWEAN_AREA }}">Pulau Bawean (Sangkapura, Tambak)</option>
                     <option value="{{ \App\Livewire\CheckoutForm::OUTSIDE_AREA }}">Di luar Kabupaten Gresik</option>
                 </select>
             </div>
@@ -33,9 +34,9 @@
             @endif
             @error('delivery_village_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
 
-            @if ($isOutsideArea)
+            @if ($blockedAreaMessage)
                 <div role="alert" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-                    <p class="font-bold">{{ \App\Livewire\CheckoutForm::OUTSIDE_AREA_MESSAGE }}</p>
+                    <p class="font-bold">{{ $blockedAreaMessage }}</p>
                     <p class="mt-1">Keluarkan Menu Bazar dari keranjang, lalu lanjutkan dengan Infak &amp; Sedekah.</p>
                     <div class="mt-3 flex flex-wrap gap-2">
                         <a href="{{ route('products.index', ['bazar' => 'infak']) }}" class="rounded-lg bg-brand-700 px-3 py-2 text-xs font-bold text-white hover:bg-brand-600">Pilih Menu Infak</a>

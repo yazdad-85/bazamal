@@ -30,7 +30,7 @@ class DeliverySettingTest extends TestCase
         $this->actingAs($this->inti())
             ->put(route('admin.settings.delivery.update'), $this->payload())
             ->assertRedirect(route('admin.settings.edit'))
-            ->assertSessionHas('success', 'Pengaturan ongkir tersimpan. Jarak 290 desa diperbarui.');
+            ->assertSessionHas('success', 'Pengaturan ongkir tersimpan. Jarak 260 desa diperbarui.');
 
         $this->assertSame('-7.1019, 112.5950', Setting::getValue('delivery_origin'));
         $this->assertSame('2000', Setting::getValue('delivery_rate_per_km'));
@@ -83,7 +83,7 @@ class DeliverySettingTest extends TestCase
 
         $this->actingAs($this->inti())
             ->post(route('admin.settings.delivery.recalculate'))
-            ->assertSessionHas('error', 'Jarak 289 desa diperbarui. 1 desa tidak terjangkau, isi jaraknya secara manual.');
+            ->assertSessionHas('error', 'Jarak 259 desa diperbarui. 1 desa tidak terjangkau, isi jaraknya secara manual.');
 
         $this->assertSame('4.00', $village->fresh()->distance_km);
     }

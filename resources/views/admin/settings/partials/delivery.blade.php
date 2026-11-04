@@ -1,7 +1,7 @@
 <section id="ongkir" class="mt-5 max-w-3xl space-y-4 rounded-2xl border border-stone-200 bg-white p-5">
     <div>
         <h2 class="font-bold text-brand-800">Ongkos Kirim Menu Bazar</h2>
-        <p class="mt-1 text-sm text-stone-500">Kecamatan Manyar, Gresik, dan Bungah gratis ongkir. Kecamatan lain di Kabupaten Gresik: jarak desa × tarif per km, dibulatkan ke atas, lalu minimal sebesar biaya minimum. Di luar Kabupaten Gresik hanya bisa memesan Infak, tanpa ongkir.</p>
+        <p class="mt-1 text-sm text-stone-500">Kecamatan Manyar, Gresik, dan Bungah gratis ongkir. Kecamatan lain di Kabupaten Gresik: jarak desa × tarif per km, dibulatkan ke atas, lalu minimal sebesar biaya minimum. Pulau Bawean dan luar Kabupaten Gresik hanya bisa memesan Infak, tanpa ongkir.</p>
     </div>
 
     <form id="delivery-settings-form" method="POST" action="{{ route('admin.settings.delivery.update') }}" class="space-y-4">

@@ -22,7 +22,11 @@ class CheckoutForm extends Component
 
     public const OUTSIDE_AREA = 'luar';
 
+    public const BAWEAN_AREA = 'bawean';
+
     public const OUTSIDE_AREA_MESSAGE = 'Anda berada di luar Kabupaten Gresik. Menu Bazar hanya tersedia untuk wilayah Kabupaten Gresik, silakan pilih menu Infak.';
+
+    public const BAWEAN_AREA_MESSAGE = 'Pengantaran Menu Bazar belum menjangkau Pulau Bawean, silakan pilih menu Infak.';
 
     public string $full_name = '';
 
@@ -69,8 +73,8 @@ class CheckoutForm extends Component
         $deliveryFee = 0;
 
         if ($hasMenuItems) {
-            if ($this->delivery_district === self::OUTSIDE_AREA) {
-                $this->addError('cart', self::OUTSIDE_AREA_MESSAGE);
+            if ($blockedAreaMessage = $this->blockedAreaMessage()) {
+                $this->addError('cart', $blockedAreaMessage);
 
                 return;
             }
@@ -207,6 +211,15 @@ class CheckoutForm extends Component
         return redirect()->route('checkout.success', ['orderCode' => $order->order_code]);
     }
 
+    private function blockedAreaMessage(): ?string
+    {
+        return match ($this->delivery_district) {
+            self::OUTSIDE_AREA => self::OUTSIDE_AREA_MESSAGE,
+            self::BAWEAN_AREA => self::BAWEAN_AREA_MESSAGE,
+            default => null,
+        };
+    }
+
     private function selectedVillage(): ?DeliveryVillage
     {
         if (! ctype_digit($this->delivery_village_id)) {
@@ -233,7 +246,7 @@ class CheckoutForm extends Component
             'villages' => $districts->contains($this->delivery_district)
                 ? DeliveryVillage::query()->where('district', $this->delivery_district)->orderBy('name')->get()
                 : collect(),
-            'isOutsideArea' => $hasMenuItems && $this->delivery_district === self::OUTSIDE_AREA,
+            'blockedAreaMessage' => $hasMenuItems ? $this->blockedAreaMessage() : null,
             'selectedVillage' => $selectedVillage,
             'deliveryFee' => $deliveryFee,
             'deliveryFeeLabel' => match ($deliveryFee) {

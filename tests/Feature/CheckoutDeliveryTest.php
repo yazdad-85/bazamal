@@ -26,10 +26,11 @@ class CheckoutDeliveryTest extends TestCase
         $this->seed();
     }
 
-    public function test_migrations_provide_every_village_of_kabupaten_gresik(): void
+    public function test_migrations_provide_every_mainland_village_of_kabupaten_gresik(): void
     {
-        $this->assertSame(18, DeliveryVillage::query()->distinct()->count('district'));
-        $this->assertSame(356, DeliveryVillage::query()->count());
+        $this->assertSame(16, DeliveryVillage::query()->distinct()->count('district'));
+        $this->assertSame(326, DeliveryVillage::query()->count());
+        $this->assertSame(0, DeliveryVillage::query()->whereIn('district', ['Sangkapura', 'Tambak'])->count());
         $this->assertSame(21, DeliveryVillage::query()->where('district', 'Gresik')->count());
     }
 
@@ -139,14 +140,16 @@ class CheckoutDeliveryTest extends TestCase
         $this->assertSame('5.00', $order->delivery_distance_km);
     }
 
-    public function test_outside_area_buyer_with_menu_items_is_blocked_with_the_notice(): void
+    #[TestWith([CheckoutForm::OUTSIDE_AREA, CheckoutForm::OUTSIDE_AREA_MESSAGE])]
+    #[TestWith([CheckoutForm::BAWEAN_AREA, CheckoutForm::BAWEAN_AREA_MESSAGE])]
+    public function test_blocked_area_buyer_with_menu_items_is_blocked_with_the_notice(string $area, string $message): void
     {
         $this->configuredVillage(distance: 5);
         $this->addToCart(Product::TYPE_MENU);
 
         $this->fillBuyer(Livewire::test(CheckoutForm::class))
-            ->set('delivery_district', CheckoutForm::OUTSIDE_AREA)
-            ->assertSee(CheckoutForm::OUTSIDE_AREA_MESSAGE)
+            ->set('delivery_district', $area)
+            ->assertSee($message)
             ->assertSeeHtml('<fieldset disabled')
             ->assertSeeHtml(route('products.index', ['bazar' => 'infak']))
             ->set('delivery_address', 'Jl. Jauh No. 1')
@@ -220,13 +223,15 @@ class CheckoutDeliveryTest extends TestCase
         $this->assertSame($product->price, $order->total);
     }
 
-    public function test_outside_area_buyer_can_still_check_out_with_only_infak(): void
+    #[TestWith([CheckoutForm::OUTSIDE_AREA, CheckoutForm::OUTSIDE_AREA_MESSAGE])]
+    #[TestWith([CheckoutForm::BAWEAN_AREA, CheckoutForm::BAWEAN_AREA_MESSAGE])]
+    public function test_blocked_area_buyer_can_still_check_out_with_only_infak(string $area, string $message): void
     {
         $this->addToCart(Product::TYPE_INFAK);
 
         $this->fillBuyer(Livewire::test(CheckoutForm::class))
-            ->set('delivery_district', CheckoutForm::OUTSIDE_AREA)
-            ->assertDontSee(CheckoutForm::OUTSIDE_AREA_MESSAGE)
+            ->set('delivery_district', $area)
+            ->assertDontSee($message)
             ->call('submit')
             ->assertRedirect();
 

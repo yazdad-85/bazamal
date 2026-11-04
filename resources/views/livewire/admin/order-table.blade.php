@@ -19,7 +19,7 @@
         <table class="min-w-full text-sm">
             <thead class="bg-stone-50 text-left text-stone-500">
                 <tr>
-                    <th class="px-4 py-3 font-semibold">ID</th>
+                    <th class="px-4 py-3 font-semibold">ID &amp; Bukti</th>
                     <th class="px-4 py-3 font-semibold">Nama Pembeli</th>
                     <th class="px-4 py-3 font-semibold">Produk</th>
                     <th class="px-4 py-3 font-semibold">Total</th>
@@ -33,6 +33,9 @@
                     <tr class="align-top">
                         <td class="px-4 py-3 font-mono text-xs">
                             <a href="{{ route('admin.orders.show', $order) }}" class="text-brand-700 font-bold hover:underline">{{ $order->order_code }}</a>
+                            <div class="mt-2 font-sans">
+                                @include('admin.orders.partials.proof-button')
+                            </div>
                         </td>
                         <td class="px-4 py-3">
                             <div class="font-semibold">{{ $order->full_name }}</div>

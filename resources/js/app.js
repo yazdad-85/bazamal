@@ -223,13 +223,32 @@ document.addEventListener('click', (event) => {
     }
 }, true);
 
-document.addEventListener('click', (event) => {
-    const dialogId = event.target.closest('[data-dialog-open]')?.dataset.dialogOpen;
+const proofViewer = document.getElementById('payment-proof-viewer');
+const proofViewerImage = document.getElementById('payment-proof-viewer-image');
+const proofViewerError = document.getElementById('payment-proof-viewer-error');
 
-    if (dialogId) {
-        document.getElementById(dialogId)?.showModal();
+document.addEventListener('click', (event) => {
+    const proofButton = event.target.closest('[data-proof-url]');
+
+    if (!proofButton || !proofViewer) {
+        return;
+    }
+
+    document.getElementById('payment-proof-viewer-title').textContent = proofButton.dataset.proofTitle;
+    proofViewerError.setAttribute('hidden', '');
+    proofViewerImage.removeAttribute('hidden');
+    proofViewerImage.src = proofButton.dataset.proofUrl;
+    proofViewer.showModal();
+});
+
+proofViewerImage?.addEventListener('error', () => {
+    if (proofViewerImage.getAttribute('src')) {
+        proofViewerImage.setAttribute('hidden', '');
+        proofViewerError.removeAttribute('hidden');
     }
 });
+
+proofViewer?.addEventListener('close', () => proofViewerImage.removeAttribute('src'));
 
 const firebaseConfigElement = document.getElementById('pwa-config');
 const notificationButton = document.getElementById('push-notification-button');

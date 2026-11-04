@@ -351,6 +351,62 @@ class BazarFlowTest extends TestCase
         $this->assertSame('diproses', $order->fresh()->status);
     }
 
+    public function test_order_list_and_report_link_only_orders_that_have_a_proof(): void
+    {
+        $withProof = $this->createOrderForProofListing('BA-WITH-PROOF', 'payment-proofs/ada.jpg');
+        $withoutProof = $this->createOrderForProofListing('BA-NO-PROOF', null);
+        $admin = User::factory()->create(['role' => User::ROLE_INTI]);
+        $proofUrlAttribute = 'data-proof-url="'.route('admin.orders.proof', $withProof).'"';
+        $missingProofUrlAttribute = 'data-proof-url="'.route('admin.orders.proof', $withoutProof).'"';
+
+        Livewire::actingAs($admin)
+            ->test(OrderTable::class)
+            ->assertSeeHtml($proofUrlAttribute)
+            ->assertDontSeeHtml($missingProofUrlAttribute);
+
+        $this->actingAs($admin)
+            ->get(route('admin.reports.index'))
+            ->assertOk()
+            ->assertSee($proofUrlAttribute, false)
+            ->assertDontSee($missingProofUrlAttribute, false);
+
+        $csv = $this->actingAs($admin)->get(route('admin.reports.export'))->streamedContent();
+
+        $this->assertStringContainsString('Bukti Pembayaran', $csv);
+        $this->assertStringContainsString(route('admin.orders.proof', $withProof), $csv);
+        $this->assertStringNotContainsString(route('admin.orders.proof', $withoutProof), $csv);
+    }
+
+    public function test_coordinator_report_hides_the_proof_of_orders_from_other_institutions(): void
+    {
+        $otherOrder = $this->createOrderForProofListing('BA-OTHER-PROOF', 'payment-proofs/lain.jpg');
+        $coordinator = User::factory()->create(['role' => User::ROLE_KOORDINATOR, 'institution' => 'SMP']);
+
+        $this->actingAs($coordinator)
+            ->get(route('admin.reports.index'))
+            ->assertOk()
+            ->assertDontSee(route('admin.orders.proof', $otherOrder));
+
+        $this->actingAs($coordinator)
+            ->get(route('admin.orders.proof', $otherOrder))
+            ->assertForbidden();
+    }
+
+    private function createOrderForProofListing(string $orderCode, ?string $proofPath): Order
+    {
+        return Order::create([
+            'order_code' => $orderCode,
+            'buyer_type' => 'umum',
+            'full_name' => 'Pembeli Bukti',
+            'phone' => '081234567890',
+            'pickup_method' => 'kirim_alamat',
+            'payment_method' => $proofPath ? 'transfer' : 'tunai',
+            'payment_proof' => $proofPath,
+            'subtotal' => 25000,
+            'status' => 'menunggu_verifikasi',
+        ]);
+    }
+
     public function test_transfer_proof_is_not_public(): void
     {
         $this->seed();

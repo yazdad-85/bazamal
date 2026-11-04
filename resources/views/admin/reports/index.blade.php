@@ -16,7 +16,7 @@
             <thead class="bg-stone-50 text-left text-stone-500">
                 <tr>
                     <th class="px-4 py-3">Tanggal</th>
-                    <th class="px-4 py-3">Kode</th>
+                    <th class="px-4 py-3">Kode &amp; Bukti</th>
                     <th class="px-4 py-3">Pembeli</th>
                     <th class="px-4 py-3">Total</th>
                     <th class="px-4 py-3">Status</th>
@@ -26,7 +26,12 @@
                 @forelse ($orders as $order)
                     <tr>
                         <td class="px-4 py-3 whitespace-nowrap">{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                        <td class="px-4 py-3 font-mono text-xs">{{ $order->order_code }}</td>
+                        <td class="px-4 py-3 font-mono text-xs">
+                            {{ $order->order_code }}
+                            <div class="mt-2 font-sans">
+                                @include('admin.orders.partials.proof-button')
+                            </div>
+                        </td>
                         <td class="px-4 py-3 font-semibold">{{ $order->full_name }}</td>
                         <td class="px-4 py-3 font-bold">{{ $order->formatted_subtotal }}</td>
                         <td class="px-4 py-3 text-xs">{{ $order->status_label }}</td>

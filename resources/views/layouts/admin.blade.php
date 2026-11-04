@@ -88,6 +88,7 @@
             </main>
         </div>
     </div>
+    @include('admin.orders.partials.proof-viewer')
     @include('partials.pwa-controls')
     @livewireScripts
 </body>

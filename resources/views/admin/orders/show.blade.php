@@ -30,20 +30,10 @@
                 @if ($order->payment_proof)
                     <div class="mt-4">
                         <p class="text-sm font-semibold mb-2">Bukti Transfer</p>
-                        <button type="button" data-dialog-open="payment-proof-viewer" aria-label="Perbesar bukti pembayaran" class="block">
+                        <button type="button" data-proof-url="{{ route('admin.orders.proof', $order) }}" data-proof-title="{{ $order->order_code }}" aria-label="Perbesar bukti pembayaran" class="block">
                             <img src="{{ route('admin.orders.proof', $order) }}" alt="Bukti" class="max-h-48 rounded-xl border">
                         </button>
                         <p class="mt-1 text-xs text-stone-400">Ketuk foto untuk memperbesar.</p>
-                        <dialog id="payment-proof-viewer" aria-label="Bukti pembayaran" class="h-full max-h-none w-full max-w-none bg-stone-950 p-0">
-                            <div class="flex h-full flex-col">
-                                <form method="dialog" class="flex shrink-0 justify-end p-3">
-                                    <button class="rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/25">✕ Tutup</button>
-                                </form>
-                                <div class="min-h-0 flex-1 overflow-auto px-3 pb-3">
-                                    <img src="{{ route('admin.orders.proof', $order) }}" alt="Bukti pembayaran" loading="lazy" class="mx-auto h-full w-full object-contain">
-                                </div>
-                            </div>
-                        </dialog>
                     </div>
                 @endif
             </div>

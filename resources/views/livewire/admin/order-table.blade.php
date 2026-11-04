@@ -46,7 +46,7 @@
                                 <span class="text-stone-400">+{{ $order->items->count() - 2 }}</span>
                             @endif
                         </td>
-                        <td class="px-4 py-3 font-bold whitespace-nowrap">{{ $order->formatted_subtotal }}</td>
+                        <td class="px-4 py-3 font-bold whitespace-nowrap">{{ $order->formatted_total }}</td>
                         <td class="px-4 py-3 text-xs">{{ $order->payment_method_label }}</td>
                         <td class="px-4 py-3">
                             @php

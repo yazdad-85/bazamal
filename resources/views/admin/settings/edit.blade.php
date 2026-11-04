@@ -93,4 +93,6 @@
             Simpan Pengaturan
         </button>
     </form>
+
+    @include('admin.settings.partials.delivery')
 @endsection

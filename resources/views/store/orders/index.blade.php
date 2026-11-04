@@ -53,7 +53,7 @@
                                     </p>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <p class="font-extrabold text-brand-700 text-sm">{{ $order->formatted_subtotal }}</p>
+                                    <p class="font-extrabold text-brand-700 text-sm">{{ $order->formatted_total }}</p>
                                     <span class="inline-flex mt-1 text-[11px] font-bold px-2 py-1 rounded-full bg-brand-50 text-brand-700">
                                         {{ $order->status_label }}
                                     </span>

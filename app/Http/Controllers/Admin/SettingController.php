@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\DeliveryVillage;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ class SettingController extends Controller
             'logoUrl' => Setting::siteLogoUrl(),
             'qrisUrl' => Setting::qrisUrl(),
             'donationTotal' => Setting::donationTotal(),
+            'deliveryVillages' => DeliveryVillage::query()->orderBy('name')->get(),
         ]);
     }
 

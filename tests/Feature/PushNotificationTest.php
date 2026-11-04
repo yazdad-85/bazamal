@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Contracts\PushSender;
 use App\Livewire\CheckoutForm;
+use App\Models\DeliveryVillage;
 use App\Models\Device;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\PushSubscription;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\CartService;
 use App\Services\DeviceIdentity;
@@ -185,6 +187,8 @@ class PushNotificationTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Pembeli Baru')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'tunai')
@@ -211,6 +215,16 @@ class PushNotificationTest extends TestCase
             'New order notification skipped: no admin device is registered.',
             ['order_code' => 'BA-PUSH-NO-DEVICE'],
         );
+    }
+
+    private function configuredVillageId(): string
+    {
+        Setting::setMany(['delivery_rate_per_km' => '2000', 'delivery_min_fee' => '5000', 'delivery_fee_rounding' => '1000']);
+
+        $village = DeliveryVillage::query()->where('district', 'Manyar')->firstOrFail();
+        $village->update(['distance_km' => 5]);
+
+        return (string) $village->id;
     }
 
     private function fakeSender(array $invalidTokens = []): FakePushSender

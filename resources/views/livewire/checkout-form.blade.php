@@ -3,6 +3,61 @@
         <div class="rounded-xl bg-red-50 text-red-700 text-sm px-4 py-3">{{ $message }}</div>
     @enderror
 
+    @if ($hasMenuItems)
+        <section class="space-y-3">
+            <div>
+                <h2 class="font-bold text-brand-800">Lokasi Pengiriman</h2>
+                <p class="text-sm text-stone-500">Menu Bazar diantar panitia ke Kecamatan Manyar dan Bungah, Kabupaten Gresik.</p>
+            </div>
+            <div>
+                <label for="delivery_district" class="block text-sm font-semibold mb-1">Kecamatan</label>
+                <select id="delivery_district" wire:model.live="delivery_district" class="w-full rounded-xl border-stone-200">
+                    <option value="">Pilih kecamatan</option>
+                    @foreach ($districts as $district)
+                        <option wire:key="district-{{ $district }}" value="{{ $district }}">{{ $district }}</option>
+                    @endforeach
+                    <option value="{{ \App\Livewire\CheckoutForm::OUTSIDE_AREA }}">Di luar Manyar dan Bungah</option>
+                </select>
+            </div>
+
+            @if ($villages->isNotEmpty())
+                <div>
+                    <label for="delivery_village_id" class="block text-sm font-semibold mb-1">Desa/Kelurahan</label>
+                    <select id="delivery_village_id" wire:model.live="delivery_village_id" class="w-full rounded-xl border-stone-200">
+                        <option value="">Pilih desa/kelurahan</option>
+                        @foreach ($villages as $village)
+                            <option wire:key="village-{{ $village->id }}" value="{{ $village->id }}">{{ $village->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+            @error('delivery_village_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+
+            @if ($isOutsideArea)
+                <div role="alert" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    <p class="font-bold">{{ \App\Livewire\CheckoutForm::OUTSIDE_AREA_MESSAGE }}</p>
+                    <p class="mt-1">Keluarkan Menu Bazar dari keranjang, lalu lanjutkan dengan Infak &amp; Sedekah.</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <a href="{{ route('products.index', ['bazar' => 'infak']) }}" class="rounded-lg bg-brand-700 px-3 py-2 text-xs font-bold text-white hover:bg-brand-600">Pilih Menu Infak</a>
+                        <a href="{{ route('cart.index') }}" class="rounded-lg border border-amber-300 px-3 py-2 text-xs font-bold hover:bg-amber-100">Buka Keranjang</a>
+                    </div>
+                </div>
+            @elseif ($selectedVillage && $deliveryFee === null)
+                <div role="alert" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
+                    Ongkir untuk desa ini belum diatur panitia. Silakan hubungi panitia.
+                </div>
+            @elseif ($selectedVillage)
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-brand-50 p-3 text-sm text-brand-800">
+                    <span>Ongkir ke {{ $selectedVillage->name }}</span>
+                    <span class="font-extrabold whitespace-nowrap">Rp {{ number_format($deliveryFee, 0, ',', '.') }}</span>
+                </div>
+            @else
+                <p class="text-xs text-stone-500">Pilih lokasi pengiriman untuk melanjutkan pengisian.</p>
+            @endif
+        </section>
+    @endif
+
+    <fieldset @disabled(! $canContinue) class="space-y-5 disabled:opacity-50">
     <section class="space-y-3">
         <div>
             <label class="block text-sm font-semibold mb-1">Nama Lengkap</label>
@@ -17,17 +72,17 @@
         </div>
     </section>
 
+    @if ($hasMenuItems)
     <section>
         <h2 class="font-bold text-brand-800 mb-2">Pengiriman</h2>
-        <p class="text-sm text-stone-500 mb-3">Pesanan diantar ke alamat. Tidak ada biaya kirim. Tim panitia yang mengantar.</p>
+        <p class="text-sm text-stone-500 mb-3">Pesanan diantar ke alamat oleh tim panitia.</p>
         <label class="block text-sm font-semibold mb-1">Alamat pengiriman</label>
         <textarea wire:model="delivery_address" rows="3" required
                   placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, dan catatan untuk tim pengantar"
                   class="w-full rounded-xl border-stone-200"></textarea>
         @error('delivery_address') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
 
-        @if ($hasMenuItems)
-            <div class="mt-3">
+        <div class="mt-3">
                 <label class="block text-sm font-semibold mb-1">Hari pengiriman</label>
                 <select wire:model="delivery_date" required class="w-full rounded-xl border-stone-200">
                     <option value="">Pilih hari pengiriman</option>
@@ -37,9 +92,9 @@
                 </select>
                 @error('delivery_date') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 <p class="text-xs text-stone-400 mt-1">Pilih hari yang diinginkan untuk pengantaran Menu Bazar.</p>
-            </div>
-        @endif
+        </div>
     </section>
+    @endif
 
     <section>
         <h2 class="font-bold text-brand-800 mb-2">Metode Pembayaran</h2>
@@ -83,9 +138,18 @@
         @endif
     </section>
 
+    <section class="space-y-1 rounded-xl border border-stone-100 p-3 text-sm">
+        <div class="flex justify-between"><span>Subtotal</span><span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span></div>
+        @if ($hasMenuItems)
+            <div class="flex justify-between"><span>Ongkir</span><span>{{ $deliveryFee === null ? '-' : 'Rp '.number_format($deliveryFee, 0, ',', '.') }}</span></div>
+        @endif
+        <div class="flex justify-between border-t border-stone-100 pt-1 font-extrabold text-brand-800"><span>Total</span><span>Rp {{ number_format($total, 0, ',', '.') }}</span></div>
+    </section>
+
     <button id="checkout-submit" type="button" wire:click="submit" wire:loading.attr="disabled"
             class="w-full rounded-xl bg-accent-600 hover:bg-accent-500 disabled:opacity-60 text-white font-extrabold py-3.5">
         <span wire:loading.remove wire:target="submit">Selesaikan Pesanan & Kirim ke Admin</span>
         <span wire:loading wire:target="submit">Memproses...</span>
     </button>
+    </fieldset>
 </div>

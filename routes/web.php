@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DeliverySettingController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ReportController;
@@ -83,6 +84,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::resource('products', AdminProductController::class)->except(['show']);
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::put('settings/delivery', [DeliverySettingController::class, 'update'])->name('settings.delivery.update');
+        Route::post('settings/delivery/recalculate', [DeliverySettingController::class, 'recalculate'])->name('settings.delivery.recalculate');
         Route::resource('users', AdminUserController::class)->except(['show']);
     });
 });

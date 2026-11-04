@@ -26,10 +26,14 @@ class Order extends Model
         'phone',
         'pickup_method',
         'delivery_address',
+        'delivery_village_id',
+        'delivery_area',
+        'delivery_distance_km',
         'delivery_date',
         'payment_method',
         'payment_proof',
         'subtotal',
+        'delivery_fee',
         'status',
     ];
 
@@ -38,6 +42,8 @@ class Order extends Model
         return [
             'delivery_date' => 'date',
             'subtotal' => 'integer',
+            'delivery_fee' => 'integer',
+            'delivery_distance_km' => 'decimal:2',
         ];
     }
 
@@ -83,6 +89,23 @@ class Order extends Model
     public function getFormattedSubtotalAttribute(): string
     {
         return 'Rp '.number_format($this->subtotal, 0, ',', '.');
+    }
+
+    public function getTotalAttribute(): int
+    {
+        return $this->subtotal + $this->delivery_fee;
+    }
+
+    public function getFormattedTotalAttribute(): string
+    {
+        return 'Rp '.number_format($this->total, 0, ',', '.');
+    }
+
+    public function getFormattedDeliveryFeeAttribute(): string
+    {
+        return $this->delivery_fee > 0
+            ? 'Rp '.number_format($this->delivery_fee, 0, ',', '.')
+            : 'Gratis';
     }
 
     public function getDeliveryDateLabelAttribute(): ?string
@@ -135,6 +158,7 @@ class Order extends Model
             'ambil_stand' => 'Ambil di Lokasi Bazar',
             'antar_kelas' => 'Diantar ke Kelas',
             'kirim_alamat' => 'Kirim ke Alamat',
+            'tanpa_pengiriman' => 'Tanpa Pengiriman',
             default => $this->pickup_method,
         };
     }

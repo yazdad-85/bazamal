@@ -54,11 +54,17 @@ class WhatsAppLinkService
             $lines[] = 'HP: '.$order->phone;
         }
 
-        $lines[] = 'Ambil: '.$order->pickup_method_label;
+        if ($order->pickup_method !== 'tanpa_pengiriman') {
+            $lines[] = 'Ambil: '.$order->pickup_method_label;
+        }
+
+        if ($order->delivery_area) {
+            $lines[] = 'Wilayah: '.$order->delivery_area;
+        }
 
         if ($order->pickup_method === 'kirim_alamat' && $order->delivery_address) {
             $lines[] = 'Alamat: '.$order->delivery_address;
-            $lines[] = 'Ongkir: Gratis, diantar tim panitia';
+            $lines[] = 'Ongkir: '.$order->formatted_delivery_fee.', diantar tim panitia';
         }
 
         if ($order->delivery_date) {
@@ -79,7 +85,12 @@ class WhatsAppLinkService
         }
 
         $lines[] = '';
-        $lines[] = 'Total: '.$order->formatted_subtotal;
+        if ($order->delivery_fee > 0) {
+            $lines[] = 'Subtotal: '.$order->formatted_subtotal;
+            $lines[] = 'Ongkir: '.$order->formatted_delivery_fee;
+        }
+
+        $lines[] = 'Total: '.$order->formatted_total;
         $lines[] = 'Status: '.$order->status_label;
 
         return implode("\n", $lines);

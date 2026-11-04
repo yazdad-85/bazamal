@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Admin\OrderTable;
 use App\Livewire\CheckoutForm;
+use App\Models\DeliveryVillage;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -54,6 +55,8 @@ class BazarFlowTest extends TestCase
             ->assertDontSee('Tunai (Cash/COD)')
             ->set('full_name', 'Andi Pembeli')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'tunai')
@@ -70,6 +73,8 @@ class BazarFlowTest extends TestCase
             ->assertSee('Tunai (Cash/COD)')
             ->set('full_name', 'Andi Pembeli')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'tunai')
@@ -114,6 +119,8 @@ class BazarFlowTest extends TestCase
             ->assertSee('Jumat, 18 Desember 2026')
             ->set('full_name', 'Pembeli Menu')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('payment_method', 'tunai')
             ->call('submit')
@@ -134,6 +141,8 @@ class BazarFlowTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Pembeli Menu')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-19')
             ->set('payment_method', 'tunai')
@@ -156,6 +165,8 @@ class BazarFlowTest extends TestCase
             ->assertDontSee('Hari pengiriman')
             ->set('full_name', 'Pemberi Infak')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'tunai')
@@ -177,6 +188,8 @@ class BazarFlowTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Budi Umum')
             ->set('phone', '081111111111')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
@@ -211,6 +224,8 @@ class BazarFlowTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Salah Klik')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
@@ -239,7 +254,7 @@ class BazarFlowTest extends TestCase
         $this->assertSame('diproses', $order->fresh()->status);
     }
 
-    public function test_home_delivery_is_only_for_bazar_besar_and_has_no_shipping_fee(): void
+    public function test_mixed_cart_is_delivered_and_charged_one_delivery_fee(): void
     {
         $this->seed();
 
@@ -252,11 +267,12 @@ class BazarFlowTest extends TestCase
         $cart->add($infak, 1);
 
         Livewire::test(CheckoutForm::class)
-            ->assertSee('Tidak ada biaya kirim')
             ->assertDontSee('Ambil di Lokasi')
             ->assertSee('Hari pengiriman')
             ->set('full_name', 'Siti Umum')
             ->set('phone', '081222222222')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8, RT 02/RW 03, Kelurahan Sumber')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
@@ -269,9 +285,11 @@ class BazarFlowTest extends TestCase
         $this->assertSame('Jl. Melati No. 8, RT 02/RW 03, Kelurahan Sumber', $order->delivery_address);
         $this->assertSame('2026-12-16', $order->delivery_date->toDateString());
         $this->assertSame($price, $order->subtotal);
+        $this->assertSame(10000, $order->delivery_fee);
 
         $this->get(route('checkout.success', ['orderCode' => $order->order_code]))
             ->assertOk()
+            ->assertSee('Rp 10.000')
             ->assertSee('Kirim ke Alamat')
             ->assertSee('Jl. Melati No. 8')
             ->assertSee('Rabu, 16 Desember 2026');
@@ -300,6 +318,8 @@ class BazarFlowTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Rahasia Pembeli')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
@@ -392,6 +412,16 @@ class BazarFlowTest extends TestCase
             ->assertForbidden();
     }
 
+    private function configuredVillageId(): string
+    {
+        Setting::setMany(['delivery_rate_per_km' => '2000', 'delivery_min_fee' => '5000', 'delivery_fee_rounding' => '1000']);
+
+        $village = DeliveryVillage::query()->where('district', 'Manyar')->firstOrFail();
+        $village->update(['distance_km' => 5]);
+
+        return (string) $village->id;
+    }
+
     private function createOrderForProofListing(string $orderCode, ?string $proofPath): Order
     {
         return Order::create([
@@ -419,6 +449,8 @@ class BazarFlowTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Pembeli Transfer')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'transfer')
@@ -448,6 +480,8 @@ class BazarFlowTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Pembeli Foto Besar')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'transfer')
@@ -472,6 +506,8 @@ class BazarFlowTest extends TestCase
             ->assertSee('Bukti pembayaran berhasil')
             ->set('full_name', 'Pembeli QRIS')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')
@@ -483,6 +519,8 @@ class BazarFlowTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Pembeli QRIS')
             ->set('phone', '081234567890')
+            ->set('delivery_district', 'Manyar')
+            ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
             ->set('payment_method', 'online')

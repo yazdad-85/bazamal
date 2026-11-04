@@ -48,7 +48,10 @@
             <p><span class="text-stone-500">Pengiriman:</span> {{ $order->pickup_method_label }}</p>
             @if ($order->delivery_address)
                 <p><span class="text-stone-500">Alamat:</span> {{ $order->delivery_address }}</p>
-                <p class="text-xs text-stone-400">Tanpa ongkir. Diantar tim panitia.</p>
+                @if ($order->delivery_area)
+                    <p><span class="text-stone-500">Wilayah:</span> {{ $order->delivery_area }}</p>
+                @endif
+                <p><span class="text-stone-500">Ongkir:</span> {{ $order->formatted_delivery_fee }} <span class="text-xs text-stone-400">· Diantar tim panitia</span></p>
             @endif
             @if ($order->delivery_date)
                 <p><span class="text-stone-500">Hari pengiriman:</span> <strong>{{ $order->delivery_date_label }}</strong></p>
@@ -58,7 +61,7 @@
                 <div class="pt-2 text-center">
                     <p class="text-sm font-bold text-brand-800 mb-2">QRIS pembayaran</p>
                     <img src="{{ $qrisUrl }}" alt="QRIS panitia" class="mx-auto max-h-64 rounded-xl border bg-white p-2">
-                    <p class="text-xs text-stone-400 mt-2">Bukti pembayaran sudah terkirim. Panitia mencocokkan nominal {{ $order->formatted_subtotal }}.</p>
+                    <p class="text-xs text-stone-400 mt-2">Bukti pembayaran sudah terkirim. Panitia mencocokkan nominal {{ $order->formatted_total }}.</p>
                 </div>
             @endif
             <p><span class="text-stone-500">Waktu:</span> {{ $order->created_at->format('d M Y H:i') }}</p>
@@ -77,9 +80,15 @@
                     </li>
                 @endforeach
             </ul>
+            @if ($order->delivery_fee > 0)
+                <div class="px-4 pt-3 border-t border-stone-100 space-y-1 text-sm">
+                    <div class="flex justify-between"><span>Subtotal</span><span>{{ $order->formatted_subtotal }}</span></div>
+                    <div class="flex justify-between"><span>Ongkir</span><span>{{ $order->formatted_delivery_fee }}</span></div>
+                </div>
+            @endif
             <div class="px-4 py-3 border-t border-stone-100 flex justify-between font-extrabold text-brand-800">
                 <span>Total</span>
-                <span>{{ $order->formatted_subtotal }}</span>
+                <span>{{ $order->formatted_total }}</span>
             </div>
         </div>
 

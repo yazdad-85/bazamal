@@ -49,7 +49,7 @@
                             <td class="px-4 py-3">
                                 {{ $order->full_name }}
                             </td>
-                            <td class="px-4 py-3 font-bold">{{ $order->formatted_subtotal }}</td>
+                            <td class="px-4 py-3 font-bold">{{ $order->formatted_total }}</td>
                             <td class="px-4 py-3 text-xs font-semibold">{{ $order->status_label }}</td>
                         </tr>
                     @empty

@@ -35,6 +35,10 @@ return [
         ],
     ],
 
+    'routing' => [
+        'url' => rtrim((string) env('ROUTING_URL', 'https://routing.openstreetmap.de/routed-car'), '/'),
+    ],
+
     'firebase' => [
         'push_enabled' => env('FIREBASE_PUSH_ENABLED', true),
         'web' => [

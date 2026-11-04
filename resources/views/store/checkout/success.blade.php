@@ -12,7 +12,7 @@
         <div class="mt-4 rounded-2xl bg-brand-50 border border-brand-100 p-4">
             <p class="text-xs font-bold uppercase tracking-wide text-brand-600">Simpan kode ini</p>
             <p class="font-mono text-xl font-extrabold text-brand-900 mt-1 select-all">{{ $order->order_code }}</p>
-            <p class="text-xs text-stone-500 mt-2">Status saat ini: <strong>{{ $order->status_label }}</strong> · {{ $order->formatted_subtotal }}</p>
+            <p class="text-xs text-stone-500 mt-2">Status saat ini: <strong>{{ $order->status_label }}</strong> · {{ $order->formatted_total }}</p>
         </div>
 
         <div id="push-order-prompt" hidden class="mt-4 rounded-2xl border border-brand-100 p-4 text-left">
@@ -29,7 +29,10 @@
             <p class="text-sm"><span class="text-stone-500">Pengiriman:</span> {{ $order->pickup_method_label }}</p>
             @if ($order->delivery_address)
                 <p class="text-sm"><span class="text-stone-500">Alamat:</span> {{ $order->delivery_address }}</p>
-                <p class="text-xs text-stone-400">Tanpa ongkir. Diantar tim panitia.</p>
+                @if ($order->delivery_area)
+                    <p class="text-sm"><span class="text-stone-500">Wilayah:</span> {{ $order->delivery_area }}</p>
+                @endif
+                <p class="text-sm"><span class="text-stone-500">Ongkir:</span> {{ $order->formatted_delivery_fee }} <span class="text-xs text-stone-400">· Diantar tim panitia</span></p>
             @endif
             @if ($order->delivery_date)
                 <p class="text-sm"><span class="text-stone-500">Hari pengiriman:</span> <strong>{{ $order->delivery_date_label }}</strong></p>
@@ -41,7 +44,7 @@
             <div class="mt-4 rounded-2xl border border-stone-100 p-4 text-center">
                 <p class="text-sm font-bold text-brand-800">Scan QRIS untuk membayar</p>
                 <img src="{{ $qrisUrl }}" alt="QRIS panitia" class="mx-auto mt-3 max-h-64 rounded-xl border bg-white p-2">
-                <p class="text-xs text-stone-500 mt-2">Bukti pembayaran sudah terkirim. Panitia akan mencocokkan nominal {{ $order->formatted_subtotal }}.</p>
+                <p class="text-xs text-stone-500 mt-2">Bukti pembayaran sudah terkirim. Panitia akan mencocokkan nominal {{ $order->formatted_total }}.</p>
             </div>
         @endif
 

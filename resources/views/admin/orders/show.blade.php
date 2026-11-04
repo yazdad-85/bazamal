@@ -19,7 +19,11 @@
                     <div><dt class="text-stone-400">HP</dt><dd class="font-semibold">{{ $order->phone ?: '-' }}</dd></div>
                     <div><dt class="text-stone-400">Pengiriman</dt><dd class="font-semibold">{{ $order->pickup_method_label }}</dd></div>
                     @if ($order->delivery_address)
-                        <div class="sm:col-span-2"><dt class="text-stone-400">Alamat</dt><dd class="font-semibold">{{ $order->delivery_address }}</dd><dd class="text-xs text-stone-400">Tanpa ongkir. Diantar tim panitia.</dd></div>
+                        <div class="sm:col-span-2"><dt class="text-stone-400">Alamat</dt><dd class="font-semibold">{{ $order->delivery_address }}</dd></div>
+                    @endif
+                    @if ($order->delivery_area)
+                        <div><dt class="text-stone-400">Wilayah</dt><dd class="font-semibold">{{ $order->delivery_area }}</dd></div>
+                        <div><dt class="text-stone-400">Jarak</dt><dd class="font-semibold">{{ $order->delivery_distance_km }} km</dd></div>
                     @endif
                     @if ($order->delivery_date)
                         <div><dt class="text-stone-400">Hari pengiriman</dt><dd class="font-semibold">{{ $order->delivery_date_label }}</dd></div>
@@ -59,9 +63,15 @@
                         @endforeach
                     </tbody>
                 </table>
+                @if ($order->delivery_fee > 0)
+                    <div class="px-4 pt-3 border-t border-stone-100 space-y-1 text-sm">
+                        <div class="flex justify-between"><span>Subtotal</span><span>{{ $order->formatted_subtotal }}</span></div>
+                        <div class="flex justify-between"><span>Ongkir</span><span>{{ $order->formatted_delivery_fee }}</span></div>
+                    </div>
+                @endif
                 <div class="px-4 py-3 border-t border-stone-100 flex justify-between font-extrabold text-brand-800">
-                    <span>Subtotal</span>
-                    <span>{{ $order->formatted_subtotal }}</span>
+                    <span>Total</span>
+                    <span>{{ $order->formatted_total }}</span>
                 </div>
             </div>
         </div>

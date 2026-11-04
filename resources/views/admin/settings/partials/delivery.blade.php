@@ -1,7 +1,7 @@
 <section id="ongkir" class="mt-5 max-w-3xl space-y-4 rounded-2xl border border-stone-200 bg-white p-5">
     <div>
         <h2 class="font-bold text-brand-800">Ongkos Kirim Menu Bazar</h2>
-        <p class="mt-1 text-sm text-stone-500">Berlaku untuk Kecamatan Manyar dan Bungah. Ongkir = jarak desa × tarif per km, dibulatkan ke atas, lalu minimal sebesar biaya minimum. Pesanan Infak tanpa ongkir.</p>
+        <p class="mt-1 text-sm text-stone-500">Kecamatan Manyar, Gresik, dan Bungah gratis ongkir. Kecamatan lain di Kabupaten Gresik: jarak desa × tarif per km, dibulatkan ke atas, lalu minimal sebesar biaya minimum. Di luar Kabupaten Gresik hanya bisa memesan Infak, tanpa ongkir.</p>
     </div>
 
     <form id="delivery-settings-form" method="POST" action="{{ route('admin.settings.delivery.update') }}" class="space-y-4">
@@ -38,26 +38,32 @@
             </div>
         </div>
 
-        <details @if ($deliveryVillages->contains('distance_km', null) || $errors->has('distances.*')) open @endif class="rounded-xl border border-stone-200">
-            <summary class="cursor-pointer px-4 py-3 text-sm font-semibold">Jarak tiap desa (km)</summary>
-            <div class="space-y-4 border-t border-stone-100 p-4">
+        @php($villagesWithoutDistance = $deliveryVillages->whereNull('distance_km')->count())
+        <details @if ($errors->has('distances.*')) open @endif class="rounded-xl border border-stone-200">
+            <summary class="cursor-pointer px-4 py-3 text-sm font-semibold">
+                Jarak tiap desa (km)
+                @if ($villagesWithoutDistance > 0)
+                    <span class="font-normal text-red-600">· {{ $villagesWithoutDistance }} desa belum punya jarak</span>
+                @endif
+            </summary>
+            <div class="space-y-2 border-t border-stone-100 p-4">
                 @foreach ($deliveryVillages->groupBy('district') as $district => $villages)
-                    <div>
-                        <h3 class="mb-2 text-sm font-bold text-brand-800">Kecamatan {{ $district }}</h3>
-                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <details @if ($villages->pluck('id')->contains(fn ($id) => $errors->has('distances.'.$id))) open @endif class="rounded-lg border border-stone-100">
+                        <summary class="cursor-pointer px-3 py-2 text-sm font-bold text-brand-800">Kecamatan {{ $district }}</summary>
+                        <div class="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2">
                             @foreach ($villages as $village)
                                 <label class="flex items-center justify-between gap-3 text-sm">
                                     <span class="min-w-0 truncate">{{ $village->name }}</span>
-                                    <input type="number" name="distances[{{ $village->id }}]" min="0" max="200" step="0.01"
+                                    <input type="number" name="distances[{{ $village->id }}]" min="0" max="1000" step="0.01"
                                            value="{{ old('distances.'.$village->id, $village->distance_km) }}"
                                            aria-label="Jarak {{ $village->name }} dalam km" class="w-24 shrink-0 rounded-lg border-stone-200 py-1.5 text-sm">
                                 </label>
                                 @error('distances.'.$village->id) <p class="text-xs text-red-600">{{ $message }}</p> @enderror
                             @endforeach
                         </div>
-                    </div>
+                    </details>
                 @endforeach
-                <p class="text-xs text-stone-400">Jarak jalan dihitung dengan OSRM, data peta © OpenStreetMap contributors. Angka bisa dikoreksi manual. Desa tanpa jarak belum bisa dipilih pembeli.</p>
+                <p class="text-xs text-stone-400">Jarak jalan dihitung dengan OSRM, data peta © OpenStreetMap contributors. Hitung ulang butuh sekitar 10 detik. Angka bisa dikoreksi manual. Desa tanpa jarak belum bisa dipesan.</p>
             </div>
         </details>
 

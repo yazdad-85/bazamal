@@ -187,7 +187,7 @@ class PushNotificationTest extends TestCase
         Livewire::test(CheckoutForm::class)
             ->set('full_name', 'Pembeli Baru')
             ->set('phone', '081234567890')
-            ->set('delivery_district', 'Manyar')
+            ->set('delivery_district', 'Cerme')
             ->set('delivery_village_id', $this->configuredVillageId())
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
@@ -221,7 +221,7 @@ class PushNotificationTest extends TestCase
     {
         Setting::setMany(['delivery_rate_per_km' => '2000', 'delivery_min_fee' => '5000', 'delivery_fee_rounding' => '1000']);
 
-        $village = DeliveryVillage::query()->where('district', 'Manyar')->firstOrFail();
+        $village = DeliveryVillage::query()->where('district', 'Cerme')->firstOrFail();
         $village->update(['distance_km' => 5]);
 
         return (string) $village->id;

@@ -7,16 +7,16 @@
         <section class="space-y-3">
             <div>
                 <h2 class="font-bold text-brand-800">Lokasi Pengiriman</h2>
-                <p class="text-sm text-stone-500">Menu Bazar diantar panitia ke Kecamatan Manyar dan Bungah, Kabupaten Gresik.</p>
+                <p class="text-sm text-stone-500">Menu Bazar diantar panitia ke seluruh Kabupaten Gresik. Gratis ongkir untuk Kecamatan Manyar, Gresik, dan Bungah.</p>
             </div>
             <div>
                 <label for="delivery_district" class="block text-sm font-semibold mb-1">Kecamatan</label>
                 <select id="delivery_district" wire:model.live="delivery_district" class="w-full rounded-xl border-stone-200">
                     <option value="">Pilih kecamatan</option>
                     @foreach ($districts as $district)
-                        <option wire:key="district-{{ $district }}" value="{{ $district }}">{{ $district }}</option>
+                        <option wire:key="district-{{ $district }}" value="{{ $district }}">{{ $district }}{{ in_array($district, $freeDeliveryDistricts, true) ? ' (gratis ongkir)' : '' }}</option>
                     @endforeach
-                    <option value="{{ \App\Livewire\CheckoutForm::OUTSIDE_AREA }}">Di luar Manyar dan Bungah</option>
+                    <option value="{{ \App\Livewire\CheckoutForm::OUTSIDE_AREA }}">Di luar Kabupaten Gresik</option>
                 </select>
             </div>
 
@@ -49,7 +49,7 @@
             @elseif ($selectedVillage)
                 <div class="flex items-center justify-between gap-3 rounded-xl bg-brand-50 p-3 text-sm text-brand-800">
                     <span>Ongkir ke {{ $selectedVillage->name }}</span>
-                    <span class="font-extrabold whitespace-nowrap">Rp {{ number_format($deliveryFee, 0, ',', '.') }}</span>
+                    <span class="font-extrabold whitespace-nowrap">{{ $deliveryFeeLabel }}</span>
                 </div>
             @else
                 <p class="text-xs text-stone-500">Pilih lokasi pengiriman untuk melanjutkan pengisian.</p>
@@ -141,7 +141,7 @@
     <section class="space-y-1 rounded-xl border border-stone-100 p-3 text-sm">
         <div class="flex justify-between"><span>Subtotal</span><span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span></div>
         @if ($hasMenuItems)
-            <div class="flex justify-between"><span>Ongkir</span><span>{{ $deliveryFee === null ? '-' : 'Rp '.number_format($deliveryFee, 0, ',', '.') }}</span></div>
+            <div class="flex justify-between"><span>Ongkir</span><span>{{ $deliveryFeeLabel }}</span></div>
         @endif
         <div class="flex justify-between border-t border-stone-100 pt-1 font-extrabold text-brand-800"><span>Total</span><span>Rp {{ number_format($total, 0, ',', '.') }}</span></div>
     </section>

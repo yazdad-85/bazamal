@@ -17,7 +17,7 @@ class DeliveryVillageFactory extends Factory
     {
         return [
             'code' => fake()->unique()->numerify('35.25.99.####'),
-            'district' => fake()->randomElement(DeliveryVillage::DISTRICTS),
+            'district' => 'Cerme',
             'name' => fake()->unique()->city(),
             'latitude' => fake()->randomFloat(7, -7.15, -7.0),
             'longitude' => fake()->randomFloat(7, 112.5, 112.65),

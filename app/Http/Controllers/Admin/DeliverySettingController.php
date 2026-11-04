@@ -27,7 +27,7 @@ class DeliverySettingController extends Controller
             'delivery_min_fee' => ['required', 'integer', 'min:0', 'max:1000000'],
             'delivery_fee_rounding' => ['required', 'integer', 'min:0', 'max:100000'],
             'distances' => ['nullable', 'array'],
-            'distances.*' => ['nullable', 'numeric', 'min:0', 'max:200'],
+            'distances.*' => ['nullable', 'numeric', 'min:0', 'max:1000'],
         ]);
 
         [$latitude, $longitude] = $this->parseOrigin($data['delivery_origin']);

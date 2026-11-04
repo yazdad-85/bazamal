@@ -26,10 +26,47 @@ class CheckoutDeliveryTest extends TestCase
         $this->seed();
     }
 
-    public function test_migration_provides_every_manyar_and_bungah_village(): void
+    public function test_migrations_provide_every_village_of_kabupaten_gresik(): void
     {
-        $this->assertSame(23, DeliveryVillage::query()->where('district', 'Manyar')->count());
-        $this->assertSame(22, DeliveryVillage::query()->where('district', 'Bungah')->count());
+        $this->assertSame(18, DeliveryVillage::query()->distinct()->count('district'));
+        $this->assertSame(356, DeliveryVillage::query()->count());
+        $this->assertSame(21, DeliveryVillage::query()->where('district', 'Gresik')->count());
+    }
+
+    #[TestWith(['Manyar'])]
+    #[TestWith(['Gresik'])]
+    #[TestWith(['Bungah'])]
+    public function test_free_delivery_districts_check_out_with_no_fee_even_before_rates_are_configured(string $district): void
+    {
+        $village = DeliveryVillage::query()->where('district', $district)->firstOrFail();
+        $product = $this->addToCart(Product::TYPE_MENU);
+
+        $this->fillBuyer(Livewire::test(CheckoutForm::class))
+            ->set('delivery_district', $district)
+            ->set('delivery_village_id', (string) $village->id)
+            ->assertDontSeeHtml('<fieldset disabled')
+            ->assertSee('Gratis')
+            ->set('delivery_address', 'Jl. Melati No. 8')
+            ->set('delivery_date', '2026-12-16')
+            ->call('submit')
+            ->assertRedirect();
+
+        $order = Order::query()->sole();
+
+        $this->assertSame('kirim_alamat', $order->pickup_method);
+        $this->assertSame($village->name.', Kec. '.$district, $order->delivery_area);
+        $this->assertSame(0, $order->delivery_fee);
+        $this->assertSame('Gratis', $order->formatted_delivery_fee);
+        $this->assertSame($product->price, $order->total);
+    }
+
+    public function test_free_delivery_ignores_a_distance_and_a_minimum_fee(): void
+    {
+        $this->configureFees(2000, 5000, 1000);
+        $village = DeliveryVillage::query()->where('district', 'Manyar')->firstOrFail();
+        $village->update(['distance_km' => 12]);
+
+        $this->assertSame(0, app(DeliveryFeeCalculator::class)->feeFor($village));
     }
 
     #[TestWith(['5', 2000, 5000, 1000, 10000])]
@@ -62,7 +99,7 @@ class CheckoutDeliveryTest extends TestCase
         $product = $this->addToCart(Product::TYPE_MENU);
 
         $this->fillBuyer(Livewire::test(CheckoutForm::class))
-            ->set('delivery_district', 'Manyar')
+            ->set('delivery_district', 'Cerme')
             ->set('delivery_village_id', (string) $village->id)
             ->assertSee('Ongkir ke '.$village->name)
             ->set('delivery_address', 'Jl. Melati No. 8')
@@ -74,7 +111,7 @@ class CheckoutDeliveryTest extends TestCase
 
         $this->assertSame('kirim_alamat', $order->pickup_method);
         $this->assertSame($village->id, $order->delivery_village_id);
-        $this->assertSame($village->name.', Kec. Manyar', $order->delivery_area);
+        $this->assertSame($village->name.', Kec. Cerme', $order->delivery_area);
         $this->assertSame('5.00', $order->delivery_distance_km);
         $this->assertSame(10000, $order->delivery_fee);
         $this->assertSame($product->price, $order->subtotal);
@@ -87,7 +124,7 @@ class CheckoutDeliveryTest extends TestCase
         $this->addToCart(Product::TYPE_MENU);
 
         $this->fillBuyer(Livewire::test(CheckoutForm::class))
-            ->set('delivery_district', 'Manyar')
+            ->set('delivery_district', 'Cerme')
             ->set('delivery_village_id', (string) $village->id)
             ->set('delivery_address', 'Jl. Melati No. 8')
             ->set('delivery_date', '2026-12-16')
@@ -123,9 +160,9 @@ class CheckoutDeliveryTest extends TestCase
 
     public function test_menu_checkout_requires_a_village_in_the_chosen_district(): void
     {
-        $bungahVillage = DeliveryVillage::query()->where('district', 'Bungah')->firstOrFail();
+        $otherVillage = DeliveryVillage::query()->where('district', 'Kebomas')->firstOrFail();
         $this->configuredVillage(distance: 5);
-        $bungahVillage->update(['distance_km' => 5]);
+        $otherVillage->update(['distance_km' => 5]);
         $this->addToCart(Product::TYPE_MENU);
 
         $checkout = $this->fillBuyer(Livewire::test(CheckoutForm::class))
@@ -136,8 +173,8 @@ class CheckoutDeliveryTest extends TestCase
             ->call('submit')
             ->assertHasErrors('delivery_village_id');
 
-        $checkout->set('delivery_district', 'Manyar')
-            ->set('delivery_village_id', (string) $bungahVillage->id)
+        $checkout->set('delivery_district', 'Cerme')
+            ->set('delivery_village_id', (string) $otherVillage->id)
             ->call('submit')
             ->assertHasErrors('delivery_village_id')
             ->assertSee('Pilih kecamatan dan desa tujuan pengiriman.');
@@ -147,11 +184,11 @@ class CheckoutDeliveryTest extends TestCase
 
     public function test_menu_checkout_is_blocked_until_the_fee_is_configured(): void
     {
-        $village = DeliveryVillage::query()->where('district', 'Manyar')->firstOrFail();
+        $village = DeliveryVillage::query()->where('district', 'Cerme')->firstOrFail();
         $this->addToCart(Product::TYPE_MENU);
 
         $this->fillBuyer(Livewire::test(CheckoutForm::class))
-            ->set('delivery_district', 'Manyar')
+            ->set('delivery_district', 'Cerme')
             ->set('delivery_village_id', (string) $village->id)
             ->assertSee('Ongkir untuk desa ini belum diatur panitia.')
             ->assertSeeHtml('<fieldset disabled')
@@ -217,7 +254,7 @@ class CheckoutDeliveryTest extends TestCase
     {
         $this->configureFees(2000, 5000, 1000);
 
-        $village = DeliveryVillage::query()->where('district', 'Manyar')->firstOrFail();
+        $village = DeliveryVillage::query()->where('district', 'Cerme')->firstOrFail();
         $village->update(['distance_km' => $distance]);
 
         return $village;

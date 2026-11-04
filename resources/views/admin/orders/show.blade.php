@@ -23,7 +23,7 @@
                     @endif
                     @if ($order->delivery_area)
                         <div><dt class="text-stone-400">Wilayah</dt><dd class="font-semibold">{{ $order->delivery_area }}</dd></div>
-                        <div><dt class="text-stone-400">Jarak</dt><dd class="font-semibold">{{ $order->delivery_distance_km }} km</dd></div>
+                        <div><dt class="text-stone-400">Ongkir</dt><dd class="font-semibold">{{ $order->formatted_delivery_fee }}@if ($order->delivery_distance_km) <span class="font-normal text-stone-400">· {{ $order->delivery_distance_km }} km</span>@endif</dd></div>
                     @endif
                     @if ($order->delivery_date)
                         <div><dt class="text-stone-400">Hari pengiriman</dt><dd class="font-semibold">{{ $order->delivery_date_label }}</dd></div>

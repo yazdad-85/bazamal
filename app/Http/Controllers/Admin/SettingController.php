@@ -21,7 +21,11 @@ class SettingController extends Controller
             'logoUrl' => Setting::siteLogoUrl(),
             'qrisUrl' => Setting::qrisUrl(),
             'donationTotal' => Setting::donationTotal(),
-            'deliveryVillages' => DeliveryVillage::query()->orderBy('name')->get(),
+            'deliveryVillages' => DeliveryVillage::query()
+                ->whereNotIn('district', DeliveryVillage::FREE_DELIVERY_DISTRICTS)
+                ->orderBy('district')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 

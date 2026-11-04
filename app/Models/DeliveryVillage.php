@@ -11,7 +11,7 @@ class DeliveryVillage extends Model
     /** @use HasFactory<DeliveryVillageFactory> */
     use HasFactory;
 
-    public const DISTRICTS = ['Manyar', 'Bungah'];
+    public const FREE_DELIVERY_DISTRICTS = ['Manyar', 'Gresik', 'Bungah'];
 
     protected $fillable = [
         'code',
@@ -30,6 +30,11 @@ class DeliveryVillage extends Model
             'longitude' => 'decimal:7',
             'distance_km' => 'decimal:2',
         ];
+    }
+
+    public function hasFreeDelivery(): bool
+    {
+        return in_array($this->district, self::FREE_DELIVERY_DISTRICTS, true);
     }
 
     public function getAreaLabelAttribute(): string

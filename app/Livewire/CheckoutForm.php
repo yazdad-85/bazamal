@@ -22,7 +22,7 @@ class CheckoutForm extends Component
 
     public const OUTSIDE_AREA = 'luar';
 
-    public const OUTSIDE_AREA_MESSAGE = 'Anda berada di luar wilayah pengantaran. Untuk pembelian Menu Bazar, silakan pilih menu Infak.';
+    public const OUTSIDE_AREA_MESSAGE = 'Anda berada di luar Kabupaten Gresik. Menu Bazar hanya tersedia untuk wilayah Kabupaten Gresik, silakan pilih menu Infak.';
 
     public string $full_name = '';
 
@@ -225,15 +225,22 @@ class CheckoutForm extends Component
         $selectedVillage = $hasMenuItems ? $this->selectedVillage() : null;
         $deliveryFee = $selectedVillage ? app(DeliveryFeeCalculator::class)->feeFor($selectedVillage) : null;
         $subtotal = $cart->subtotal();
+        $districts = DeliveryVillage::query()->distinct()->orderBy('district')->pluck('district');
 
         return view('livewire.checkout-form', [
-            'districts' => DeliveryVillage::DISTRICTS,
-            'villages' => in_array($this->delivery_district, DeliveryVillage::DISTRICTS, true)
+            'districts' => $districts,
+            'freeDeliveryDistricts' => DeliveryVillage::FREE_DELIVERY_DISTRICTS,
+            'villages' => $districts->contains($this->delivery_district)
                 ? DeliveryVillage::query()->where('district', $this->delivery_district)->orderBy('name')->get()
                 : collect(),
             'isOutsideArea' => $hasMenuItems && $this->delivery_district === self::OUTSIDE_AREA,
             'selectedVillage' => $selectedVillage,
             'deliveryFee' => $deliveryFee,
+            'deliveryFeeLabel' => match ($deliveryFee) {
+                null => '-',
+                0 => 'Gratis',
+                default => 'Rp '.number_format($deliveryFee, 0, ',', '.'),
+            },
             'canContinue' => ! $hasMenuItems || $deliveryFee !== null,
             'subtotal' => $subtotal,
             'total' => $subtotal + ($deliveryFee ?? 0),

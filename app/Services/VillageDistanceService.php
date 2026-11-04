@@ -11,7 +11,7 @@ use RuntimeException;
 class VillageDistanceService
 {
     /**
-     * Store the road distance from the origin to every village. Villages the router
+     * Store the road distance from the origin to every paid village. Villages the router
      * cannot reach keep their current distance.
      *
      * @return array{updated: int, unreachable: int}
@@ -22,7 +22,10 @@ class VillageDistanceService
      */
     public function recalculateFrom(string $originLatitude, string $originLongitude): array
     {
-        $villages = DeliveryVillage::query()->orderBy('id')->get();
+        $villages = DeliveryVillage::query()
+            ->whereNotIn('district', DeliveryVillage::FREE_DELIVERY_DISTRICTS)
+            ->orderBy('id')
+            ->get();
         $coordinates = $villages
             ->map(fn (DeliveryVillage $village): string => $village->longitude.','.$village->latitude)
             ->prepend($originLongitude.','.$originLatitude)
@@ -30,7 +33,7 @@ class VillageDistanceService
 
         $distances = Http::withUserAgent('BazarAmal/1.0 (+'.config('app.url').')')
             ->connectTimeout(5)
-            ->timeout(20)
+            ->timeout(30)
             ->get(config('services.routing.url').'/table/v1/driving/'.$coordinates, [
                 'sources' => 0,
                 'annotations' => 'distance',

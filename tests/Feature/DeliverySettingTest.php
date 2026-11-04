@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\DeliveryVillage;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\Http;
@@ -29,14 +30,15 @@ class DeliverySettingTest extends TestCase
         $this->actingAs($this->inti())
             ->put(route('admin.settings.delivery.update'), $this->payload())
             ->assertRedirect(route('admin.settings.edit'))
-            ->assertSessionHas('success', 'Pengaturan ongkir tersimpan. Jarak 45 desa diperbarui.');
+            ->assertSessionHas('success', 'Pengaturan ongkir tersimpan. Jarak 290 desa diperbarui.');
 
         $this->assertSame('-7.1019, 112.5950', Setting::getValue('delivery_origin'));
         $this->assertSame('2000', Setting::getValue('delivery_rate_per_km'));
         $this->assertSame('5000', Setting::getValue('delivery_min_fee'));
         $this->assertSame('1000', Setting::getValue('delivery_fee_rounding'));
-        $this->assertSame(0, DeliveryVillage::query()->whereNull('distance_km')->count());
-        $this->assertSame('1.50', DeliveryVillage::query()->orderBy('id')->first()->distance_km);
+        $this->assertSame(0, $this->paidVillages()->whereNull('distance_km')->count());
+        $this->assertSame('1.50', $this->paidVillages()->orderBy('id')->first()->distance_km);
+        $this->assertSame(66, DeliveryVillage::query()->whereNull('distance_km')->count());
 
         Http::assertSent(fn (HttpRequest $request): bool => str_contains($request->url(), '/table/v1/driving/112.5950,-7.1019;')
             && str_contains($request->url(), 'sources=0'));
@@ -45,7 +47,7 @@ class DeliverySettingTest extends TestCase
     public function test_manual_distance_is_kept_when_the_origin_is_unchanged(): void
     {
         Setting::setValue('delivery_origin', '-7.1019, 112.5950');
-        $village = DeliveryVillage::query()->firstOrFail();
+        $village = $this->paidVillages()->firstOrFail();
 
         $this->actingAs($this->inti())
             ->put(route('admin.settings.delivery.update'), $this->payload([
@@ -60,7 +62,7 @@ class DeliverySettingTest extends TestCase
     public function test_router_failure_keeps_existing_distances_and_warns_the_admin(): void
     {
         Setting::setValue('delivery_origin', '-7.1019, 112.5950');
-        $village = DeliveryVillage::query()->firstOrFail();
+        $village = $this->paidVillages()->firstOrFail();
         $village->update(['distance_km' => 4]);
         Http::fake(['*' => Http::response('down', 503)]);
 
@@ -75,13 +77,13 @@ class DeliverySettingTest extends TestCase
     public function test_unreachable_village_keeps_its_distance_and_is_reported(): void
     {
         Setting::setValue('delivery_origin', '-7.1019, 112.5950');
-        $village = DeliveryVillage::query()->orderBy('id')->firstOrFail();
+        $village = $this->paidVillages()->orderBy('id')->firstOrFail();
         $village->update(['distance_km' => 4]);
         $this->fakeRouter(unreachableIndex: 1);
 
         $this->actingAs($this->inti())
             ->post(route('admin.settings.delivery.recalculate'))
-            ->assertSessionHas('error', 'Jarak 44 desa diperbarui. 1 desa tidak terjangkau, isi jaraknya secara manual.');
+            ->assertSessionHas('error', 'Jarak 289 desa diperbarui. 1 desa tidak terjangkau, isi jaraknya secara manual.');
 
         $this->assertSame('4.00', $village->fresh()->distance_km);
     }
@@ -128,8 +130,8 @@ class DeliverySettingTest extends TestCase
             ->get(route('admin.settings.edit'))
             ->assertOk()
             ->assertSee('Ongkos Kirim Menu Bazar')
-            ->assertSee('Manyar Sidomukti')
-            ->assertSee('Tanjung Widoro');
+            ->assertSee('Kecamatan Cerme')
+            ->assertDontSee('Manyar Sidomukti');
     }
 
     /**
@@ -151,11 +153,19 @@ class DeliverySettingTest extends TestCase
     {
         $distances = [0];
 
-        foreach (range(1, DeliveryVillage::query()->count()) as $index) {
+        foreach (range(1, $this->paidVillages()->count()) as $index) {
             $distances[] = $index === $unreachableIndex ? null : $index * 1500;
         }
 
         Http::fake(['*' => Http::response(['code' => 'Ok', 'distances' => [$distances]])]);
+    }
+
+    /**
+     * @return Builder<DeliveryVillage>
+     */
+    private function paidVillages(): Builder
+    {
+        return DeliveryVillage::query()->whereNotIn('district', DeliveryVillage::FREE_DELIVERY_DISTRICTS);
     }
 
     private function inti(): User

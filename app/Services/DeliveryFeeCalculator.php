@@ -8,10 +8,14 @@ use App\Models\Setting;
 class DeliveryFeeCalculator
 {
     /**
-     * Fee for a village, or null while its distance or the rate has not been configured.
+     * Fee for a village, or null while a paid village's distance or the rate has not been configured.
      */
     public function feeFor(DeliveryVillage $village): ?int
     {
+        if ($village->hasFreeDelivery()) {
+            return 0;
+        }
+
         $ratePerKm = Setting::getValue('delivery_rate_per_km');
 
         if ($village->distance_km === null || $ratePerKm === null || $ratePerKm === '') {
